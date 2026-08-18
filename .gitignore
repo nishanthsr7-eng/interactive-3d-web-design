@@ -1,0 +1,30 @@
+node_modules/
+
+# Source inputs, not deployed. Anchored with a leading slash: an unanchored
+# "Frames/" also matches public/assets/frames/ on case-insensitive filesystems.
+/Frames/
+/Reference/
+/Sketches/
+
+# Static assets under public/ ARE committed on purpose — they have no build
+# step at deploy time, so an uncommitted one is a 404 in production. The three
+# build outputs below are the exception: netlify.toml/vercel.json run
+# `npm run build` on every deploy, which regenerates them fresh, so committing
+# them would just be diff noise. `npm run dev` builds them before serving.
+/public/js/site-bundle.js
+/public/js/wheel-bundle.js
+/public/css/wheel-bundle.css
+
+scripts/.contact-sheets/
+.DS_Store
+Thumbs.db
+
+# Local editor/agent config. Machine-specific, and no part of the deploy.
+/.claude/
+
+# Screenshots for docs/DESIGN.md — ~7 MB of PNGs that no page ever serves and
+# no build step reads. Kept on disk, out of the repo.
+/docs/screenshots/
+
+# Unused font source: nothing in src/ or public/ references it.
+/font/

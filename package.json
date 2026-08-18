@@ -1,0 +1,38 @@
+{
+  "name": "vinci-builders",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "VINCI Builders — 3D scrollytelling experience",
+  "author": "Nishanth S",
+  "license": "MIT",
+  "scripts": {
+    "build:site": "vite build -c vite.site.config.ts",
+    "build:wheel": "vite build -c vite.wheel.config.ts",
+    "build": "npm run build:site && npm run build:wheel",
+    "dev": "npm run build && node scripts/serve.mjs",
+    "dev:site": "vite build -c vite.site.config.ts --watch",
+    "dev:wheel": "vite build -c vite.wheel.config.ts --watch",
+    "serve": "node scripts/serve.mjs"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.15",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.3"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "framer-motion": "^11.15.0",
+    "gsap": "^3.13.0",
+    "lenis": "^1.1.18",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwind-merge": "^2.5.5",
+    "three": "^0.170.0"
+  }
+}
