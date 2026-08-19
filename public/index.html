@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VINCI Builders — Structures that outlive the brief</title>
+<meta name="description" content="VINCI Builders design and construct bespoke homes, villas and vertical extensions across Bengaluru. Precision engineering, honest materials, delivered turnkey.">
+<meta name="theme-color" content="#000000">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=Newsreader:opsz,wght@6..72,200..600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="/css/main.css">
+<!-- Trust section's house wheel: a small isolated React/Tailwind island (see
+     src/wheel/), built separately by Vite into these two files. Everything
+     else on this page is the vanilla Three.js/GSAP site and never touches
+     this bundle. -->
+<link rel="stylesheet" href="/css/wheel-bundle.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23000000'/><path d='M8 8 L16 24 L24 8' stroke='%23DE4758' stroke-width='2.5' fill='none' stroke-linejoin='round'/></svg>">
+
+</head>
+
+<body>
+
+<!-- ══ Desktop gate ══════════════════════════════════════════════════════ -->
+<div id="gate" class="gate" hidden>
+  <div class="gate__inner">
+    <svg class="gate__mark" viewBox="0 0 64 64" aria-hidden="true">
+      <path d="M14 14 L32 50 L50 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+    </svg>
+    <p class="gate__word">VINCI</p>
+    <p class="gate__copy">
+      This experience was built for a large screen and a real graphics card.
+      Please open it on a desktop or laptop.
+    </p>
+  </div>
+</div>
+
+<!-- ══ Preloader ═════════════════════════════════════════════════════════ -->
+<div id="preloader" class="preloader">
+  <div class="preloader__inner">
+    <svg class="preloader__mark" viewBox="0 0 200 120" aria-hidden="true">
+      <g fill="none" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round" stroke-linecap="round">
+        <path class="pl-line" d="M40 22 L100 98 L160 22"/>
+        <path class="pl-line" d="M52 22 L100 82 L148 22"/>
+        <path class="pl-line" d="M40 22 L160 22"/>
+        <path class="pl-line" d="M64 46 L136 46"/>
+        <path class="pl-line" d="M78 64 L122 64"/>
+      </g>
+    </svg>
+    <div class="preloader__meta">
+      <span class="preloader__label">Constructing</span>
+      <span class="preloader__pct" id="preloader-pct">0</span>
+    </div>
+    <div class="preloader__bar"><i id="preloader-fill"></i></div>
+  </div>
+</div>
+
+<!-- ══ Custom cursor ═════════════════════════════════════════════════════ -->
+<div id="cursor" class="cursor" aria-hidden="true">
+  <div class="cursor__ring"></div>
+  <div class="cursor__dot"></div>
+  <div class="cursor__label"></div>
+</div>
+
+<!-- ══ Persistent canvas ═════════════════════════════════════════════════ -->
+<canvas id="gl-canvas" class="gl-canvas" aria-hidden="true"></canvas>
+<!-- Faint page-wide crimson haze. Pure CSS (see #ambient-bg in main.css);
+     sits behind everything in the z-index stack. -->
+<div id="ambient-bg" aria-hidden="true"></div>
+<!-- One shared glow behind Trust and Statement only: grows and brightens
+     once as Trust scrolls into view, then holds steady in the background
+     through both sections and fades out before Contact — see
+     ui/lamp-glow.js. Off (opacity 0, no transform) everywhere else. -->
+<div id="lamp-glow" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<!-- ══ Fixed chrome ══════════════════════════════════════════════════════ -->
+<header class="masthead">
+  <a class="logo" href="#top" data-cursor="link">
+    <svg class="logo__mark" viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M6 7 L16 26 L26 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M6 7 L26 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <span class="logo__word">VINCI</span>
+    <span class="logo__sub">Builders</span>
+  </a>
+  <nav class="masthead__nav">
+    <a class="bl is-current" href="#top" data-cursor="link">Home</a>
+    <a class="bl" href="#trust" data-cursor="link">Work</a>
+    <a class="bl" href="#contact" data-cursor="link">Contact</a>
+  </nav>
+</header>
+
+
+<main id="top">
+
+  <!-- ══ Hero ═════════════════════════════════════════════════════════ -->
+  <section class="hero" id="hero">
+    <div class="hero__pin">
+      <div class="hero__copy">
+        <h1 class="hero__title display display--hero">
+          <span class="line" data-reveal>Structures that</span>
+          <span class="line" data-reveal><strong>Outlive</strong> the brief.</span>
+        </h1>
+        <p class="lede" data-reveal>
+          Design-led construction across Bengaluru — homes, villas and
+          vertical extensions, engineered in three dimensions before a
+          single brick is laid.
+        </p>
+        <div class="hero__badges">
+          <span data-reveal>Bengaluru · Est. 2009</span>
+          <b data-reveal><span class="badge-count" data-count-to="40">0</span>+ homes delivered</b><b data-reveal>Zero litigation</b>
+        </div>
+      </div>
+      <div class="hero__scroll" data-reveal>
+        <span>Scroll to explore</span>
+        <i></i>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ Sketchbook ═══════════════════════════════════════════════════ -->
+  <section class="sketchbook" id="sketchbook">
+    <div class="sketchbook__pin">
+      <p class="kicker" data-reveal>From drawing to delivery</p>
+
+      <!-- Decorative only: a few slow-turning wireframe volumes and a field
+           of drifting dust, standing in for the room this section used to
+           have. Cheap on purpose — CSS transforms and one small canvas, no
+           second WebGL context — and started/stopped by sketchbook.js so
+           nothing runs while the section is off screen. -->
+      <div class="sb-bg" id="sbBg" aria-hidden="true">
+        <canvas id="sbMotes"></canvas>
+        <i class="sb-bg-float sb-bg-float--1"><b class="sb-bg-cube">
+          <s></s><s></s><s></s><s></s><s></s><s></s>
+        </b></i>
+        <i class="sb-bg-float sb-bg-float--2"><b class="sb-bg-cube sb-bg-cube--tetra">
+          <s></s><s></s><s></s><s></s>
+        </b></i>
+        <i class="sb-bg-float sb-bg-float--3"><b class="sb-bg-cube">
+          <s></s><s></s><s></s><s></s><s></s><s></s>
+        </b></i>
+        <i class="sb-bg-float sb-bg-float--4"><b class="sb-bg-cube sb-bg-cube--tetra">
+          <s></s><s></s><s></s><s></s>
+        </b></i>
+        <i class="sb-bg-float sb-bg-float--5"><b class="sb-bg-cube">
+          <s></s><s></s><s></s><s></s><s></s><s></s>
+        </b></i>
+      </div>
+
+      <div class="sb-wrap" id="sbWrap">
+        <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+          <filter id="sb-mblur-1"><feGaussianBlur stdDeviation="5 0"/></filter>
+          <filter id="sb-mblur-2"><feGaussianBlur stdDeviation="14 0"/></filter>
+        </svg>
+
+        <div class="sb-stage" id="sbStage">
+          <div class="sb-3d" id="sb3d">
+            <div class="sb-tilt" id="sbTilt">
+              <div class="sb-cast sb-cast--ambient" aria-hidden="true"></div>
+              <div class="sb-cast sb-cast--contact" aria-hidden="true"></div>
+              <div class="sb-cast sb-cast--hair" aria-hidden="true"></div>
+              <!-- The bound board the pages sit in: sits proud of the page
+                   block on all four sides, with the spine showing above and
+                   below it. Behind .sb-book, and outside it, so the loupe's
+                   page copy never picks it up. -->
+              <div class="sb-cover" aria-hidden="true">
+                <span class="sb-cover__base"></span>
+                <span class="sb-cover__spine"></span>
+                <span class="sb-cover__well"></span>
+              </div>
+              <div class="sb-book" id="sbBook" data-cursor="drag"></div>
+            </div>
+            <div class="zoomwrap" id="zoomWrap" aria-hidden="true"><div class="zoominner" id="zoomInner"></div></div>
+            <div class="loupe" id="loupe"><span class="grip"></span><span class="ring"><span class="lens"></span></span></div>
+          </div>
+        </div>
+
+        <div class="sb-captions" id="sbCaptions"></div>
+
+        <p class="sb-hint" id="sbHint">Drag the page to turn</p>
+
+        <div class="sb-tools">
+          <button class="tool tool--labelled" id="sbLoupeBtn" type="button"
+                  aria-pressed="false" data-cursor="link">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="8.8" cy="8.8" r="5.8"/><path d="M13 13l4.4 4.4"/><path d="M6.4 7.2a3.2 3.2 0 0 1 2.4-1.4" opacity=".55"/></svg>
+            <span>Magnifier</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ Trust ════════════════════════════════════════════════════════ -->
+  <section class="trust" id="trust">
+    <div class="trust__pin">
+      <div class="trust__copy">
+        <p class="kicker" data-reveal>Proven on site</p>
+        <h2 class="display display--section" data-reveal>We build what <strong>survives scrutiny.</strong></h2>
+        <p class="lede" data-reveal>
+          From heritage bungalows in Basavanagudi to vertical extensions in
+          Indiranagar, VINCI's work holds up to structural audit and
+          everyday life alike. Every project is signed off by a licensed
+          structural engineer — so what looks right on the drawing survives
+          the monsoon, the termites, and forty years of use.
+        </p>
+      </div>
+      <!-- Mounted by src/wheel/main.tsx (React): a scattered cluster of
+           flippable polaroids — see scattered-polaroids.tsx. -->
+      <div class="trust__photo" id="trust-reveal" data-reveal></div>
+    </div>
+  </section>
+
+  <!-- ══ Statement ════════════════════════════════════════════════════ -->
+  <section class="statement" id="statement">
+    <div class="statement__pin">
+      <div class="statement__copy">
+        <p class="kicker" data-reveal>The third dimension</p>
+        <h2 class="display display--section" data-reveal>The drawing is flat. <strong>We build the depth.</strong></h2>
+        <p class="lede" data-reveal>
+          Too many homes are built exactly as drawn — flat, generic,
+          indifferent to how a family actually lives in a room. We model
+          every project in three dimensions before ground is broken, testing
+          light, circulation and material against the real site. We don't
+          just hand over a floor plan. We hand over a place you can already
+          feel yourself living in.
+        </p>
+      </div>
+      <!-- Mounted by src/wheel/main.tsx (React): a drag-to-reveal wipe
+           between the photo and a line-drawing derived from it — see
+           reveal-slider.tsx. -->
+      <div class="statement__photo" id="statement-reveal" data-reveal></div>
+    </div>
+  </section>
+
+  <!-- ══ Contact ══════════════════════════════════════════════════════ -->
+  <section class="contact" id="contact">
+    <div class="contact__inner">
+      <div class="contact__copy">
+        <p class="kicker" data-reveal>Enquiry</p>
+        <h2 class="display display--section" data-reveal>Tell us about <strong>the site.</strong></h2>
+        <p class="lede" data-reveal>
+          Send us the plot, the brief, or just a rough idea. We reply to every
+          enquiry within two working days.
+        </p>
+        <ul class="contact__details" data-reveal>
+          <li><span>Studio</span><b>Indiranagar, Bengaluru 560038</b></li>
+          <li><span>Phone</span><b>+91 80 4000 0000</b></li>
+          <li><span>Email</span><b>studio@vincibuilders.in</b></li>
+          <li><span>Hours</span><b>Mon–Sat, 09:30 – 18:30 IST</b></li>
+        </ul>
+      </div>
+
+      <!-- Delivery is configured here, not in JS. Put a form-to-email endpoint
+           that accepts a JSON POST in data-endpoint — e.g.
+           https://formspree.io/f/XXXXXXXX or https://api.web3forms.com/submit
+           (Web3Forms also wants an access_key; add it as a hidden input).
+           Left empty, the form hands the brief to the visitor's mail client
+           instead of pretending to have sent it. See src/site/ui/form.js. -->
+      <form class="form" id="enquiry-form" novalidate data-endpoint="https://api.web3forms.com/submit">
+        <input type="hidden" name="access_key" value="da366aa8-14bf-4b63-9186-dfcac1ceb0f3">
+        <div class="field">
+          <input type="text" id="f-name" name="name" required placeholder=" " autocomplete="name">
+          <label for="f-name">Your name</label>
+          <small class="field__err"></small>
+        </div>
+        <div class="field">
+          <input type="email" id="f-email" name="email" required placeholder=" " autocomplete="email">
+          <label for="f-email">Email</label>
+          <small class="field__err"></small>
+        </div>
+        <div class="field">
+          <input type="tel" id="f-phone" name="phone" placeholder=" " autocomplete="tel">
+          <label for="f-phone">Phone <i>(optional)</i></label>
+          <small class="field__err"></small>
+        </div>
+        <div class="field">
+          <select id="f-type" name="type" required>
+            <option value="" selected disabled></option>
+            <option>New home / villa</option>
+            <option>Renovation or retrofit</option>
+            <option>Vertical extension</option>
+            <option>Interior fit-out</option>
+            <option>Something else</option>
+          </select>
+          <label for="f-type">Project type</label>
+          <small class="field__err"></small>
+        </div>
+        <div class="field field--wide">
+          <textarea id="f-message" name="message" rows="4" required placeholder=" "></textarea>
+          <label for="f-message">The brief</label>
+          <small class="field__err"></small>
+        </div>
+        <button class="bl btn--submit" type="submit" data-cursor="link">
+          <span>Send enquiry</span>
+        </button>
+        <p class="form__note" id="form-note" role="status"></p>
+      </form>
+    </div>
+
+    <footer class="footer">
+      <div class="footer__col">
+        <span>Studio / Bengaluru</span>
+        <b>VINCI Builders</b>
+        <p>Indiranagar, Bengaluru 560038, Karnataka</p>
+      </div>
+      <div class="footer__col">
+        <span>Principal Architect</span>
+        <b>Nishanth S</b>
+        <p>Leads every project from first sketch to handover.</p>
+      </div>
+      <div class="footer__col">
+        <span>Legal</span>
+        <p>© <span id="year"></span> VINCI Builders</p>
+        <p>Bengaluru, Karnataka</p>
+      </div>
+    </footer>
+  </section>
+
+</main>
+
+<!-- Both bundles are built by Vite (see vite.site.config.ts and
+     vite.wheel.config.ts) and are gitignored — run `npm run build` once
+     before `npm run dev`. -->
+<script src="/js/site-bundle.js" defer></script>
+<script src="/js/wheel-bundle.js" defer></script>
+</body>
+</html>

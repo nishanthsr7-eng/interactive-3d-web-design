@@ -1,0 +1,1202 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   VINCI Builders — matched to vertex3d.asia's design language:
+   near-black ground, off-white type, a single crimson accent, Inter doing
+   every job in the page chrome (the sketchbook's canvas pages are the one
+   exception — they set Instrument Serif / Newsreader themselves, see
+   src/site/ui/sketchbook.js), weight-contrast instead of color for emphasis,
+   and bracket-wrapped text links instead of filled buttons.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Surface */
+  --ink:        #000000;
+  --ink-2:      #0b0c14;
+  --ink-3:      #14151d;
+
+  /* Type */
+  --bone:       #F4F4F6;
+  --bone-dim:   rgba(244, 244, 246, 0.62);
+  --bone-faint: rgba(244, 244, 246, 0.34);
+
+  /* The one accent */
+  --red:        #DE4758;
+  --red-hover:  #CF2D3B;
+
+  --line:       rgba(244, 244, 246, 0.12);
+  --line-soft:  rgba(244, 244, 246, 0.06);
+
+  --f-ui:   'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  --gut: clamp(24px, 4vw, 72px);
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--bone);
+  font-family: var(--f-ui);
+  font-size: 16px;
+  line-height: 1.6;
+  font-weight: 400;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+html:not(.is-gated) body,
+html:not(.is-gated) a,
+html:not(.is-gated) button,
+html:not(.is-gated) input,
+html:not(.is-gated) select,
+html:not(.is-gated) textarea { cursor: none; }
+
+/* Once someone tabs, they are not using the custom ring — give the real
+   pointer back and hide the ring (see .is-keyboard in core/cursor.js). */
+html.is-keyboard,
+html.is-keyboard body,
+html.is-keyboard a,
+html.is-keyboard button,
+html.is-keyboard input,
+html.is-keyboard select,
+html.is-keyboard textarea { cursor: auto; }
+html.is-keyboard .cursor { display: none; }
+
+/* One visible focus ring for everything. :focus-visible only fires for
+   keyboard/AT focus, so this never shows on a mouse click. */
+:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+.field input:focus-visible,
+.field select:focus-visible,
+.field textarea:focus-visible { outline-offset: 4px; }
+
+html.is-locked { overflow: hidden; }
+
+img, svg { display: block; max-width: 100%; }
+
+::selection { background: var(--red); color: var(--bone); }
+
+/* ── Typography ───────────────────────────────────────────────────────── */
+
+.kicker {
+  font-family: var(--f-ui);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+  margin: 0 0 1.4em;
+}
+
+/* Big uppercase display headings — weight 300, tight negative tracking,
+   line-height locked to 1. Emphasis comes from a bold <strong>, not color. */
+.display {
+  font-family: var(--f-ui);
+  font-weight: 300;
+  text-transform: uppercase;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  margin: 0 0 0.5em;
+  color: var(--bone);
+}
+.display strong { font-weight: 700; }
+
+.display--hero    { font-size: clamp(40px, 6vw, 76px); }
+.display--section { font-size: clamp(32px, 4.6vw, 60px); }
+.display--exhibit { font-size: clamp(28px, 3.4vw, 44px); letter-spacing: -0.02em; }
+
+.lede {
+  font-size: clamp(15px, 1.15vw, 18px);
+  line-height: 1.65;
+  color: var(--bone-dim);
+  max-width: 48ch;
+  margin: 0 0 2em;
+}
+
+/* ── Bracket links — the one interactive-text style, used everywhere a
+   filled button would otherwise go: nav, CTAs, exhibit actions. ────────── */
+
+.bl {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--f-ui);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  color: var(--bone);
+  background: none;
+  border: 0;
+  padding: 0;
+  opacity: 0.72;
+  transition: color .35s var(--ease), opacity .35s var(--ease);
+}
+.bl::before { content: '['; opacity: .5; }
+.bl::after  { content: ']'; opacity: .5; }
+.bl:hover, .bl.is-current { opacity: 1; color: var(--red); }
+
+/* ── Desktop gate ─────────────────────────────────────────────────────── */
+
+.gate {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: grid;
+  place-items: center;
+  background: var(--ink);
+  padding: 32px;
+  text-align: center;
+}
+.gate[hidden] { display: none; }
+.gate__mark { width: 56px; height: 56px; color: var(--red); margin: 0 auto 20px; }
+.gate__word {
+  font-size: 22px; font-weight: 600; letter-spacing: 0.42em;
+  margin: 0 0 18px; text-indent: 0.42em;
+}
+.gate__copy { color: var(--bone-dim); max-width: 34ch; margin: 0 auto; font-size: 15px; }
+html.is-gated .masthead,
+html.is-gated main,
+html.is-gated .preloader,
+html.is-gated .cursor,
+html.is-gated .gl-canvas,
+html.is-gated #ambient-bg,
+html.is-gated .grain { display: none !important; }
+
+/* ── Preloader ────────────────────────────────────────────────────────── */
+
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: grid;
+  place-items: center;
+  background: #000;
+}
+.preloader__inner { width: min(340px, 70vw); text-align: center; }
+.preloader__mark { width: 100%; height: auto; color: var(--red); margin-bottom: 26px; }
+.preloader__mark .pl-line {
+  stroke-dasharray: var(--len, 300);
+  stroke-dashoffset: var(--len, 300);
+}
+.preloader__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: var(--f-ui);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--bone-faint);
+  margin-bottom: 10px;
+}
+.preloader__pct { color: var(--bone); font-size: 13px; }
+.preloader__pct::after { content: '%'; opacity: .4; margin-left: 2px; }
+.preloader__bar { height: 1px; background: var(--line); overflow: hidden; }
+.preloader__bar i {
+  display: block; height: 100%; width: 0%;
+  background: var(--red);
+  transition: width .35s var(--ease);
+}
+
+/* ── Cursor ───────────────────────────────────────────────────────────── */
+
+.cursor {
+  position: fixed;
+  inset: 0;
+  z-index: 950;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+}
+.cursor__dot, .cursor__ring, .cursor__label {
+  position: absolute; top: 0; left: 0;
+  will-change: transform;
+}
+.cursor__dot {
+  width: 6px; height: 6px; margin: -3px 0 0 -3px;
+  background: var(--bone); border-radius: 50%;
+  transition: width .3s var(--ease), height .3s var(--ease),
+              margin .3s var(--ease), background .3s var(--ease);
+}
+.cursor__ring {
+  width: 34px; height: 34px; margin: -17px 0 0 -17px;
+  border: 1px solid var(--bone-faint); border-radius: 50%;
+  transition: width .4s var(--ease), height .4s var(--ease),
+              margin .4s var(--ease), border-color .4s var(--ease),
+              opacity .3s var(--ease);
+}
+.cursor__label {
+  margin: 26px 0 0 26px;
+  font-family: var(--f-ui);
+  font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--red); white-space: nowrap;
+}
+.cursor[data-mode="link"] .cursor__ring {
+  width: 54px; height: 54px; margin: -27px 0 0 -27px; border-color: var(--red);
+}
+.cursor[data-mode="link"] .cursor__dot { background: var(--red); }
+.cursor[data-mode="drag"] .cursor__ring {
+  width: 72px; height: 72px; margin: -36px 0 0 -36px;
+  border-color: var(--red);
+  background: rgba(222,71,88,.08);
+}
+.cursor[data-mode="hotspot"] .cursor__ring {
+  width: 44px; height: 44px; margin: -22px 0 0 -22px;
+  border-color: var(--bone);
+}
+.cursor.is-down .cursor__ring { transform: scale(.82); }
+
+/* ── Persistent canvas + grain ────────────────────────────────────────── */
+
+/* Faint crimson haze behind everything, giving the flat text sections some
+   depth. Two layers of large, very soft blooms on their own compositor layers,
+   drifting on long out-of-sync periods so the field never visibly repeats.
+
+   Deliberately shapeless: an earlier pass used concentric contour rings, which
+   at this scale read as a bullseye rather than as atmosphere. This replaces a
+   Vanta TOPOLOGY field that cost 836 KB of p5 + vanta to render at 12%
+   opacity — same job, no JS and no bytes. */
+#ambient-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+#ambient-bg::before,
+#ambient-bg::after {
+  content: '';
+  position: absolute;
+  /* Oversized so the drift never pulls an edge into frame. */
+  inset: -35%;
+  will-change: transform;
+}
+#ambient-bg::before {
+  background:
+    radial-gradient(38vw 30vw at 22% 24%, rgba(222, 71, 88, .085), transparent 68%),
+    radial-gradient(30vw 34vw at 74% 66%, rgba(222, 71, 88, .065), transparent 70%);
+  animation: ambient-drift-a 71s ease-in-out infinite;
+}
+#ambient-bg::after {
+  background:
+    radial-gradient(44vw 26vw at 62% 16%, rgba(222, 71, 88, .05), transparent 72%),
+    radial-gradient(26vw 30vw at 14% 78%, rgba(222, 71, 88, .055), transparent 70%);
+  animation: ambient-drift-b 97s ease-in-out infinite;
+}
+@keyframes ambient-drift-a {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(4%, -3%, 0) scale(1.12); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+@keyframes ambient-drift-b {
+  0%   { transform: translate3d(0, 0, 0) scale(1.08); }
+  50%  { transform: translate3d(-3.5%, 4%, 0) scale(1); }
+  100% { transform: translate3d(0, 0, 0) scale(1.08); }
+}
+
+/* One shared glow behind Trust and Statement — see ui/lamp-glow.js, which
+   drives --lamp-scale and this element's own opacity off scroll position.
+   Off (opacity 0) everywhere else on the page, including Contact. Warmer
+   and considerably stronger than #ambient-bg's haze above — that one is a
+   faint site-wide wash, this is meant to read as a deliberate light source
+   behind these two sections specifically. */
+#lamp-glow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+}
+/* Wide and soft on purpose, not a tight spotlight: Trust's photo cluster has
+   gaps a small glow could sit in, but Statement's photo is one opaque box
+   (bg-[#0b0c14] in reveal-slider.tsx) that would hide a smaller glow
+   entirely if centred behind it. Sized to spill well past either panel's
+   edges so the visible fringe — above, below and around the photo — still
+   reads clearly even though the peak itself sits behind it.
+   --lamp-x/--lamp-y let lamp-glow.js walk the hotspot itself, not just its
+   size: it starts low and centred, roughly where sketchbook's own bottom-up
+   .sb-bg::before glow sits, and drifts up to its resting spot behind Trust's
+   photo cluster as the section hands off — one light moving into place
+   rather than two unrelated glows meeting at a hard edge. */
+#lamp-glow::before {
+  content: '';
+  position: absolute;
+  inset: -25%;
+  background: radial-gradient(60vw 60vw at var(--lamp-x, 60%) var(--lamp-y, 48%),
+    rgba(222, 71, 88, .26), rgba(222, 71, 88, .1) 42%, transparent 70%);
+  transform: scale(var(--lamp-scale, .5));
+  transform-origin: var(--lamp-x, 60%) var(--lamp-y, 48%);
+}
+
+.gl-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.grain {
+  position: fixed;
+  inset: -50%;
+  z-index: 3;
+  pointer-events: none;
+  opacity: .045;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain 6s steps(6) infinite;
+}
+@keyframes grain {
+  0%   { transform: translate(0, 0); }
+  20%  { transform: translate(-3%, 4%); }
+  40%  { transform: translate(4%, -2%); }
+  60%  { transform: translate(-2%, -4%); }
+  80%  { transform: translate(3%, 3%); }
+  100% { transform: translate(0, 0); }
+}
+
+main { position: relative; z-index: 4; }
+
+/* ── Masthead ─────────────────────────────────────────────────────────── */
+
+.masthead {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 26px var(--gut);
+  background: linear-gradient(rgba(4, 4, 6, .6), rgba(4, 4, 6, 0));
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.logo { display: flex; align-items: baseline; gap: 10px; text-decoration: none; color: var(--bone); }
+.logo__mark { width: 22px; height: 22px; align-self: center; color: var(--bone); }
+.logo__word { font-size: 16px; font-weight: 600; letter-spacing: .34em; text-indent: .34em; }
+.logo__sub {
+  font-family: var(--f-ui); font-size: 10px; letter-spacing: .2em;
+  text-transform: uppercase; opacity: .55; font-weight: 500;
+}
+.masthead__nav { display: flex; align-items: center; gap: 36px; }
+.masthead__nav .bl { font-size: 14px; letter-spacing: .05em; text-transform: uppercase; }
+
+/* ── Reveal ───────────────────────────────────────────────────────────── */
+
+[data-reveal] { opacity: 0; transform: translateY(22px); }
+
+/* ── Hero ─────────────────────────────────────────────────────────────── */
+/* No CTA buttons here — matches the reference: heading, lede, credibility
+   badges, scroll cue, nothing else competing with the 3D model. */
+
+.hero { height: 260vh; position: relative; }
+.hero__pin {
+  position: sticky; top: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--gut);
+}
+.hero__pin::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* Legible-text aid for the hero's own view — faded out by main.js's
+     SKETCHBOOK trigger well before the sketchbook approach completes.
+     .hero__pin lingers in normal flow until it scrolls fully past (its own
+     natural bottom), which is well after that handoff is visually done, so
+     left at a flat 1 this box's own hard edge was showing as a seam right
+     across the incoming sketchbook content. */
+  opacity: var(--hero-pin-fade, 1);
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, .92) 0%,
+    rgba(0, 0, 0, .74) 26%,
+    rgba(0, 0, 0, .2) 48%,
+    rgba(0, 0, 0, 0) 68%
+  );
+}
+.hero__copy { max-width: 700px; position: relative; }
+
+.hero__badges {
+  display: flex; align-items: center; gap: 18px; margin: 0 0 1.6em;
+}
+.hero__badges span:first-child {
+  font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--bone-faint);
+}
+.hero__badges b {
+  font-size: 12px; font-weight: 600; letter-spacing: .04em; color: var(--bone-dim);
+}
+.hero__badges b + b::before { content: '·'; margin-right: 18px; color: var(--bone-faint); }
+.hero__scroll {
+  position: absolute;
+  left: 50%; bottom: 42px;
+  transform: translateX(-50%);
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 24px;
+  border-radius: 999px;
+  background: rgba(244, 244, 246, 0.07);
+  border: 1px solid rgba(244, 244, 246, 0.14);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.32);
+  overflow: hidden;
+  font-family: var(--f-ui); font-size: 13px;
+  letter-spacing: .2em; text-transform: uppercase; color: var(--red);
+}
+.hero__scroll i {
+  display: block; width: 36px; height: 1px; background: var(--line);
+  position: relative; overflow: hidden;
+}
+.hero__scroll i::after {
+  content: ''; position: absolute; inset: 0;
+  background: var(--red);
+  animation: railSweep 2.4s var(--ease) infinite;
+}
+@keyframes railSweep {
+  0%   { transform: translateX(-100%); }
+  60%  { transform: translateX(100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Water-ripple: spawned in JS (ui/reveal.js) at the pointer's position as it
+   moves over the scroll cue, scoped to this one element only. */
+.hero__scroll-ripple {
+  position: absolute;
+  left: 0; top: 0;
+  width: 6px; height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  border: 1px solid rgba(244, 244, 246, 0.45);
+  background: radial-gradient(circle, rgba(222, 71, 88, 0.3), transparent 70%);
+  pointer-events: none;
+  animation: heroScrollRipple 900ms ease-out forwards;
+}
+@keyframes heroScrollRipple {
+  from { transform: scale(1); opacity: 0.6; }
+  to   { transform: scale(9); opacity: 0; }
+}
+
+/* ── Sketchbook — a real page-turning book (ui/sketchbook.js) ──────────── */
+/* The 3D backdrop is switched off by the time this section centres on
+   screen (see the #sketchbook fade in main.js), leaving the site's own
+   black ground — the warm book is the only lit thing on the desk.
+   Geometry, shading and the loupe follow github.com/MengTo/sketchbook.
+   Pages are composited to canvas at boot and fill their own rect, so the
+   paper inset --pg is 0 and each half is exactly half the book. */
+
+/* The riffle-in plays itself out on a timer, not on scroll, and finishes
+   just 5% into the pin (see the sketchbook trigger's `end` in main.js) — so
+   the pin only needs a short buffer past that, not a long trailing stretch
+   of dead scroll before the section releases into Trust. */
+.sketchbook { height: 120vh; position: relative; }
+.sketchbook__pin {
+  position: sticky; top: 0; height: 100vh; overflow: hidden;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  /* --bd is the binding's reveal: how far the board stands proud of the
+     paper. It is declared here because three things need it — the board
+     itself, the layout space reserved around the page block, and the page
+     width, which is 90vw *minus* the board so the bound object as a whole
+     measures 90vw. */
+  --bd: clamp(14px, 1.9vw, 26px);
+  gap: clamp(10px, 1.6vh, 18px);
+  /* Tighter than the site gutter: at 90vw the book leaves only ~5vw a side,
+     and the page-turn arrows have to live in it. */
+  padding: 0 clamp(14px, 2vw, 34px);
+  text-align: center;
+}
+.sketchbook__pin .kicker { margin: 0; }
+
+.sketchbook, .sketchbook * { -webkit-user-select: none; -moz-user-select: none; user-select: none; }
+.sketchbook img { -webkit-user-drag: none; user-drag: none; }
+
+/* ── Background decor ─────────────────────────────────────────────────────
+   What used to be the studio room, replaced by something that costs almost
+   nothing: a canvas of drifting dust and three slow-turning wireframe
+   volumes, echoing the hero's own construction-line aesthetic instead of
+   trying to be a second room. Sits behind .sb-wrap (z-index 2) and in front
+   of the section's plain black.
+   No floor-glow of its own any more — that used to be a second, separately
+   shaped/coloured radial gradient hard-clipped to this box, sitting in front
+   of #lamp-glow (main's z-index is above it) and creating a visible seam
+   exactly at the pin's edge, where the compounded double-glow inside this
+   box met the single lamp glow just past it. #lamp-glow now walks its own
+   hotspot under the book for this same span (see ui/lamp-glow.js), so the
+   light here and the light behind Trust/Statement are the one element. */
+.sb-bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+#sbMotes { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+.sb-bg-float {
+  position: absolute; perspective: 900px;
+  animation: sb-bob 14s ease-in-out infinite;
+}
+/* Spread across five regions rather than three — still two up top and one at
+   mid-height, but two more added low in the frame where the black behind the
+   book runs deepest. Weighting the extra density toward the bottom instead
+   of adding it evenly breaks up that darkness with detail specifically where
+   it's worst, rather than just brightening the section as a whole. */
+.sb-bg-float--1 { top: 12%;  left: 6%;  width: 130px; height: 130px; animation-duration: 16s; }
+.sb-bg-float--2 { top: 78%;  left: 9%;  width: 118px; height: 118px; animation-duration: 13s; animation-delay: -4s; }
+.sb-bg-float--3 { top: 46%;  left: 92%; width: 78px;  height: 78px;  animation-duration: 18s; animation-delay: -9s; }
+.sb-bg-float--4 { top: 88%;  left: 40%; width: 116px; height: 116px; animation-duration: 15s; animation-delay: -7s; }
+.sb-bg-float--5 { top: 92%;  left: 72%; width: 92px;  height: 92px;  animation-duration: 20s; animation-delay: -2s; }
+@keyframes sb-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-26px); }
+}
+
+.sb-bg-cube {
+  position: absolute; inset: 0; transform-style: preserve-3d;
+  color: rgba(222, 71, 88, .34); /* the site's one accent, kept faint */
+  animation: sb-spin 34s linear infinite;
+}
+.sb-bg-float--2 .sb-bg-cube { animation-duration: 26s; animation-direction: reverse; color: rgba(244, 244, 246, .28); }
+.sb-bg-float--3 .sb-bg-cube { animation-duration: 40s; color: rgba(244, 244, 246, .16); }
+.sb-bg-float--4 .sb-bg-cube { animation-duration: 30s; color: rgba(222, 71, 88, .4); }
+.sb-bg-float--5 .sb-bg-cube { animation-duration: 22s; animation-direction: reverse; color: rgba(244, 244, 246, .26); }
+@keyframes sb-spin {
+  from { transform: rotateX(0deg) rotateY(0deg); }
+  to   { transform: rotateX(360deg) rotateY(360deg); }
+}
+/* Six faces, each a bordered plane with no fill — a wireframe, not a solid. */
+.sb-bg-cube s {
+  position: absolute; inset: 0; border: 1px solid currentColor; border-radius: 2px;
+}
+.sb-bg-cube s:nth-child(1) { transform: translateZ(calc(var(--cs, 65px)));                 }
+.sb-bg-cube s:nth-child(2) { transform: translateZ(calc(var(--cs, 65px) * -1));            }
+.sb-bg-cube s:nth-child(3) { transform: rotateY(90deg)  translateZ(calc(var(--cs, 65px))); }
+.sb-bg-cube s:nth-child(4) { transform: rotateY(-90deg) translateZ(calc(var(--cs, 65px))); }
+.sb-bg-cube s:nth-child(5) { transform: rotateX(90deg)  translateZ(calc(var(--cs, 65px))); }
+.sb-bg-cube s:nth-child(6) { transform: rotateX(-90deg) translateZ(calc(var(--cs, 65px))); }
+.sb-bg-float--1 .sb-bg-cube s { --cs: 65px; }
+.sb-bg-float--2 .sb-bg-cube s { --cs: 58px; }
+.sb-bg-float--3 .sb-bg-cube s { --cs: 39px; }
+.sb-bg-float--4 .sb-bg-cube s { --cs: 56px; }
+.sb-bg-float--5 .sb-bg-cube s { --cs: 44px; }
+/* The tetrahedron drops two faces and tilts the rest — same wireframe
+   language, a second silhouette so the three don't read as one shape
+   repeated. */
+.sb-bg-cube--tetra s:nth-child(1) { transform: translateZ(28px) scale(.86) rotate(45deg); border-radius: 0; }
+.sb-bg-cube--tetra s:nth-child(2) { transform: translateZ(-28px) scale(.86) rotate(45deg); border-radius: 0; }
+.sb-bg-cube--tetra s:nth-child(3) { transform: rotateY(90deg) translateZ(28px) scale(.7) rotate(45deg); border-radius: 0; }
+.sb-bg-cube--tetra s:nth-child(4) { transform: rotateX(90deg) translateZ(28px) scale(.7) rotate(45deg); border-radius: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sb-bg-float, .sb-bg-cube { animation: none; }
+}
+
+/* ── Reduced motion ───────────────────────────────────────────────────────
+   The scroll choreography itself can't be removed without gutting the page,
+   but everything that moves purely for effect can be, and — critically —
+   [data-reveal] must not stay at opacity 0 waiting on an animation that is
+   never going to run. Motion-specific opt-outs also live in core/scroll.js
+   (Lenis smoothing) and main.js (the preloader's minimum duration). */
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] { opacity: 1 !important; transform: none !important; }
+
+  #ambient-bg::before,
+  #ambient-bg::after { animation: none; }
+
+  .grain { animation: none; }
+
+  /* The ripple trail on the scroll cue is decoration with no state behind it. */
+  .hero__scroll-ripple { display: none; }
+
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.sb-wrap {
+  display: grid; justify-items: center; gap: clamp(11px, 1.6vh, 17px);
+  width: 100%; position: relative; z-index: 2;
+}
+.sb-stage {
+  display: flex; align-items: center; justify-content: center; width: 100%;
+  position: relative; touch-action: pan-y;
+  /* .sb-cover is absolutely positioned and so contributes no height; without
+     this the kicker and the caption would overlap the binding. */
+  margin: var(--bd) 0 calc(var(--bd) * 1.35);
+}
+/* The box is the book's own untransformed frame: the loupe lives here, on
+   the desk, while only .sb-tilt leans and scales underneath it. */
+.sb-3d {
+  position: relative; flex: 1 1; min-width: 0;
+  /* Same reason as .sb-stage's vertical margin: the board overhangs this
+     box, and the page-turn arrows are laid out against it. */
+  margin: 0 var(--bd);
+  /* 2.796 is the album spread's aspect ratio (2*PAGE_W / PAGE_H in
+     sketchbook.js) — the factor that turns the leftover height into a width.
+     The reserve is .sketchbook__pin's padding-top plus the kicker, captions
+     and tools; the hint is out of flow and costs nothing.
+     90vw fills the screen while leaving the arrows a column either side and
+     a visible margin of black around the cover; the px cap stops it growing
+     without end on very wide monitors. The board is subtracted so that the
+     bound book, not the paper inside it, is what measures 90vw. */
+  max-width: min(1560px, calc(90vw - var(--bd) * 2), calc((100svh - 250px) * 2.796));
+  perspective: 1750px; perspective-origin: 50% 46%;
+  --pg: 0%;
+}
+.sb-tilt {
+  /* The depth budget, in the book's own space. Pages sit at z=0; the sheet
+     stack falls away behind them; the board is deepest. These are large
+     enough that a 7-degree lean visibly slides the layers against each
+     other — which is the whole point of having them. */
+  /* Sheets stay shallow on purpose. Depth shrinks a layer toward the
+     vanishing point, and on a half-page that pull is ~0.35px per px of
+     depth — go deeper than this and the shrink eats the fan, turning the
+     rim inside out. The board gets the big separation instead. */
+  --z-sheet: 1.4px;
+  --z-cover: 30px;
+  --z-board: 18px;
+  position: relative; transform-style: preserve-3d;
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(var(--zoom, 1));
+  will-change: transform;
+}
+.sb-book {
+  position: relative; width: 100%; aspect-ratio: 2600 / 930;
+  transform-style: preserve-3d; z-index: 1;
+}
+
+/* ── The page block's thickness ────────────────────────────────────────────
+   Seven sheets a side, each a little further back and fanned a little wider
+   than the last, so the rim showing beyond the open spread is real geometry
+   rather than a drawn line. The fan scales with how much of the album is
+   stacked on that side, so the block migrates from right to left as you read
+   — and because the sheets are separated in Z, leaning the book slides them
+   against one another instead of moving as one flat picture. */
+.sb-stack {
+  position: absolute; top: 0; bottom: 0; width: 50%;
+  pointer-events: none; transform-style: preserve-3d; z-index: 0;
+}
+.sb-stack--left  { left: 0;   --t: var(--th-l, .5); }
+.sb-stack--right { left: 50%; --t: var(--th-r, .5); }
+.sb-sheet {
+  /* Flush top and bottom, like a trimmed book — a real page block is cut to
+     one height, not a fan that bulges. The earlier version let --o grow the
+     sheet's top/bottom along with its fore-edge offset, so the thick side
+     (up to 90% full depth) stood 7px proud above and below the actual page
+     image while the thin side stood ~0px proud: two different page heights,
+     which is exactly what read as "misaligned". Depth now shows only where a
+     real stack shows it — poking out sideways past the open edge. */
+  position: absolute; display: block; top: 0; bottom: 0;
+  --d: calc((var(--k) + 1) * var(--z-sheet));
+  --o: calc((var(--k) + 1) * 2.2px * var(--t));
+  transform: translateZ(calc(var(--d) * -1));
+  border-radius: 1px;
+  background:
+    linear-gradient(rgba(26, 19, 10, calc(var(--k) * .05)),
+                    rgba(26, 19, 10, calc(var(--k) * .05))),
+    linear-gradient(to bottom, #efe8db 0%, #e2d9c7 55%, #cec2aa 100%);
+  box-shadow: 0 0 0 .5px rgba(88, 70, 46, .3);
+}
+.sb-stack--left  .sb-sheet { left: calc(var(--o) * -1); right: 0; }
+.sb-stack--right .sb-sheet { right: calc(var(--o) * -1); left: 0; }
+
+/* ── The binding ───────────────────────────────────────────────────────────
+   A charcoal book-cloth board the page block sits inside. It is proud of the
+   pages on every side — a little more at the foot, where you see the board's
+   thickness — and carries the spine down the gutter, visible in the bands
+   above and below the paper. Pushed back 2px in Z so it can never fight
+   .sb-book for the same plane under preserve-3d.
+   --bd is the reveal: how far the board stands out from the paper. */
+.sb-cover {
+  position: absolute; z-index: 0;
+  top: calc(var(--bd) * -1); left: calc(var(--bd) * -1); right: calc(var(--bd) * -1);
+  bottom: calc(var(--bd) * -1.35);
+  transform-style: preserve-3d;
+  /* Dropped well back so the sheet stack sits on it rather than in it. The
+     scale undoes the shrink perspective applies at that depth, so the reveal
+     stays the width it is meant to be. */
+  transform: translateZ(calc(var(--z-cover) * -1)) scale(1.0172);
+  /* Open flat, so both outer corners are fore-edge corners. */
+  border-radius: 6px;
+  background:
+    /* weave */
+    repeating-linear-gradient(45deg,
+      rgba(255, 255, 255, .022) 0 1px, rgba(0, 0, 0, .03) 1px 2px),
+    repeating-linear-gradient(-45deg,
+      rgba(255, 255, 255, .016) 0 1px, rgba(0, 0, 0, .028) 1px 2px),
+    /* the board's own tone: lighter where the light rakes the top edge */
+    linear-gradient(168deg, #33302c 0%, #23211e 42%, #191715 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .07),
+    inset 0 0 0 1px rgba(0, 0, 0, .5),
+    0 2px 4px rgba(0, 0, 0, .5),
+    0 18px 34px rgba(0, 0, 0, .55);
+}
+/* The blind-stamped rule just inside the board's edge. */
+.sb-cover::before {
+  content: ""; position: absolute; inset: calc(var(--bd) * .34);
+  border: 1px solid rgba(196, 170, 128, .13);
+  border-radius: 3px;
+  pointer-events: none;
+}
+/* The spine band, showing in the reveal above and below the paper. */
+.sb-cover__spine {
+  position: absolute; top: 0; bottom: 0; left: 50%;
+  width: clamp(20px, 2.2vw, 34px); transform: translateX(-50%);
+  background: linear-gradient(to right,
+    rgba(0, 0, 0, .62) 0%, rgba(0, 0, 0, .58) 5%, rgba(0, 0, 0, .10) 24%,
+    rgba(255, 255, 255, .06) 50%,
+    rgba(0, 0, 0, .10) 76%, rgba(0, 0, 0, .58) 95%, rgba(0, 0, 0, .62) 100%);
+  box-shadow:
+    inset 1px 0 0 rgba(255, 255, 255, .045),
+    inset -1px 0 0 rgba(255, 255, 255, .045);
+}
+/* The well the paper sits in: its shadow falls outward onto the board, and
+   the inset hairline is the gap between paper edge and binding. */
+/* The underside of the board, parallel to its face. The gap between the two
+   is the binding's thickness, and it opens and closes as the book leans. */
+.sb-cover__base {
+  position: absolute; inset: -1px;
+  transform: translateZ(calc(var(--z-board) * -1));
+  border-radius: 7px;
+  background: linear-gradient(168deg, #1a1816 0%, #0e0d0c 60%, #060505 100%);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, .62);
+}
+.sb-cover__well {
+  position: absolute;
+  top: var(--bd); left: var(--bd); right: var(--bd);
+  bottom: calc(var(--bd) * 1.35);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, .55),
+    0 3px 10px rgba(0, 0, 0, .5),
+    0 10px 26px rgba(0, 0, 0, .38);
+}
+
+/* The book sits on a surface, so its shadow is a soft pool underneath — no
+   box, no filter on the artwork, nothing with an edge of its own. Both blobs
+   fade to zero well inside their own bounds, and both ease off while a leaf
+   is in the air. */
+/* On black there is nothing for a cast shadow to darken, so the pool under
+   the book becomes the opposite: a faint warm spill of light bouncing off
+   the paper, with a dark contact line still tucked under the edge to keep
+   the book sitting on something rather than floating. */
+.sb-cast { position: absolute; pointer-events: none; z-index: 0; }
+/* These were `.sb-cast.contact` etc. until the generic `.contact` section rule
+   further down the file — same specificity, later in source — took the shadow
+   out of `position: absolute` and gave it 20vh of padding, leaving a 180px
+   in-flow block wedged above the book. Scoped modifiers now, so no bare
+   utility class can reach them. */
+.sb-cast--ambient {
+  left: -6%; right: -6%; top: -6%; bottom: -16%;
+  background: radial-gradient(50% 50% at 50% 56%,
+    rgba(236, 226, 205, .16) 0%, rgba(216, 200, 170, .07) 44%, rgba(216, 200, 170, 0) 74%);
+  filter: blur(34px);
+  opacity: calc(1 - var(--shade, 0) * .42);
+}
+.sb-cast--contact {
+  left: 7%; right: 7%; top: 91%; bottom: -9%;
+  background: radial-gradient(50% 44% at 50% 34%,
+    rgba(0, 0, 0, .85) 0%, rgba(0, 0, 0, .4) 48%, rgba(0, 0, 0, 0) 78%);
+  filter: blur(12px);
+  opacity: calc(1 - var(--shade, 0) * .5);
+}
+.sb-cast--hair {
+  left: 11%; right: 11%; top: 99%; bottom: -3%;
+  background: radial-gradient(50% 52% at 50% 30%,
+    rgba(0, 0, 0, .9) 0%, rgba(0, 0, 0, 0) 76%);
+  filter: blur(4px);
+  opacity: calc(1 - var(--shade, 0) * .62);
+}
+
+.sb-half { position: absolute; top: 0; bottom: 0; width: 50%; overflow-x: clip; overflow-y: visible; }
+.sb-half.left { left: 0; }
+.sb-half.right { left: 50%; }
+.sb-half-img { width: 100%; max-width: none; height: auto; display: block; }
+
+/* the shadow the lifting leaf throws onto the page beneath it */
+.gutter-shade {
+  position: absolute; top: var(--pg, 0%); bottom: var(--pg, 0%); width: 46%;
+  pointer-events: none; opacity: calc(var(--shade, 0) * .62);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 5.2%, #000 94.8%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0, #000 5.2%, #000 94.8%, transparent 100%);
+}
+.gutter-shade.left  { right: 0; background: linear-gradient(270deg, rgba(52, 38, 20, .30), rgba(52, 38, 20, 0) 82%); }
+.gutter-shade.right { left: 0;  background: linear-gradient(90deg,  rgba(52, 38, 20, .24), rgba(52, 38, 20, 0) 82%); }
+
+/* ---- the turning leaf: nested strips forming a curved surface ---- */
+.curl {
+  position: absolute; top: 0; height: 100%;
+  width: calc(var(--bw, 0px) * var(--span));
+  transform-style: preserve-3d; z-index: 6;
+}
+.curl.next { left: 50%; transform-origin: left center;  transform: rotateY(calc(-1 * var(--tt, 0deg))); }
+.curl.prev { right: 50%; transform-origin: right center; transform: rotateY(var(--tt, 0deg)); }
+.strip {
+  position: absolute; top: 0; height: 100%;
+  width: calc(var(--bw, 0px) * var(--span) / var(--n));
+  transform-style: preserve-3d;
+}
+.curl.next .strip { transform-origin: left center; }
+.curl.prev .strip { transform-origin: right center; }
+.curl.next > .strip { left: 0; }
+.curl.prev > .strip { right: 0; left: auto; }
+.curl.next .strip .strip { left: 100%;  transform: rotateY(var(--td, 0deg)); }
+.curl.prev .strip .strip { right: 100%; transform: rotateY(calc(-1 * var(--td, 0deg))); }
+.face {
+  position: absolute; top: 0; bottom: 0; left: 0; right: -1.1px;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  background-repeat: no-repeat;
+  background-size: calc(var(--bw, 0px) * var(--span, .5)) auto;
+}
+.face.back { transform: rotateY(180deg); }
+.face .sh, .face .gl {
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 5.2%, #000 94.8%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0, #000 5.2%, #000 94.8%, transparent 100%);
+}
+.strip.edge .face .sh, .strip.edge .face .gl {
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 9%, #000 91%, transparent 100%), var(--hf);
+  mask-image: linear-gradient(180deg, transparent 0, #000 9%, #000 91%, transparent 100%), var(--hf);
+  -webkit-mask-composite: source-in; mask-composite: intersect;
+}
+.curl.next .strip.edge .face.front, .curl.prev .strip.edge .face.back {
+  --hf: linear-gradient(90deg, #000 0 22%, transparent 96%);
+}
+.curl.next .strip.edge .face.back, .curl.prev .strip.edge .face.front {
+  --hf: linear-gradient(270deg, #000 0 22%, transparent 96%);
+}
+.face .sh { position: absolute; left: 0; right: 0; top: var(--pg, 0%); bottom: var(--pg, 0%); pointer-events: none; }
+.curl.next .face.front .sh, .curl.prev .face.back .sh {
+  background: linear-gradient(90deg, rgba(58, 43, 20, var(--a1, 0)), rgba(58, 43, 20, var(--a2, 0)));
+}
+.curl.next .face.back .sh, .curl.prev .face.front .sh {
+  background: linear-gradient(90deg, rgba(58, 43, 20, var(--a2, 0)), rgba(58, 43, 20, var(--a1, 0)));
+}
+.face .gl {
+  position: absolute; left: 0; right: 0; top: var(--pg, 0%); bottom: var(--pg, 0%);
+  pointer-events: none; background: #fffaf0;
+  opacity: calc(var(--shade, 0) * var(--lit, 1) * var(--lit, 1) * .20);
+}
+
+/* ---- the loupe: a real magnifier lying on the page. Pick it up and drag
+       it across the book; it stays where you put it. ---- */
+.loupe {
+  position: absolute; left: 0; top: 0;
+  width: var(--lr, 240px); height: var(--lr, 240px);
+  pointer-events: none; z-index: 80; opacity: 0;
+  transition: opacity .25s ease; will-change: transform;
+}
+.loupe.on { opacity: 1; }
+.loupe .ring {
+  position: absolute; inset: 0; border-radius: 50%;
+  pointer-events: auto;
+  padding: calc(var(--lr, 240px) * .058);
+  box-shadow:
+    0 1px 2px rgba(58, 44, 26, .30),
+    0 10px 18px rgba(58, 44, 26, .24),
+    0 26px 40px rgba(58, 44, 26, .20),
+    0 48px 66px rgba(58, 44, 26, .13);
+}
+/* the bezel is an annulus, so the glass really is see-through */
+.loupe .ring:before {
+  content: ""; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+  background: linear-gradient(146deg,
+    #fdf7e9 0%, #e6d7b4 14%, #b69d70 32%, #7d6740 50%,
+    #cdbb92 66%, #f4ead3 80%, #9b8459 100%);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, .8),
+    inset 0 -2px 3px rgba(70, 52, 26, .5);
+  -webkit-mask-image: radial-gradient(circle closest-side at 50% 50%, transparent 0 88.2%, #000 89.8% 100%);
+  mask-image: radial-gradient(circle closest-side at 50% 50%, transparent 0 88.2%, #000 89.8% 100%);
+}
+/* the handle, drawn before the bezel so the ring covers its inner end */
+.loupe .grip {
+  position: absolute; left: 50%; top: 50%;
+  width: calc(var(--lr, 240px) * .74); height: calc(var(--lr, 240px) * .125);
+  transform-origin: 0 50%;
+  transform: rotate(40deg) translate(calc(var(--lr, 240px) * .33), -50%);
+  border-radius: calc(var(--lr, 240px) * .06);
+  pointer-events: auto;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .46) 0 13%, rgba(255, 255, 255, 0) 44%,
+                    rgba(0, 0, 0, .26) 100%),
+    linear-gradient(90deg, #d9bd82 0 14%, #a9884e 14% 20%, #6d4c2b 20% 62%,
+                    #5a3d22 62% 92%, #7a563180 92% 100%);
+  box-shadow: 0 8px 15px rgba(58, 44, 26, .26), 0 18px 26px rgba(58, 44, 26, .14);
+}
+.lens {
+  position: relative; display: block; width: 100%; height: 100%; border-radius: 50%;
+  background-repeat: no-repeat; overflow: hidden;
+  box-shadow:
+    inset 0 0 0 1px rgba(52, 40, 22, .55),
+    inset 0 4px 12px rgba(40, 30, 14, .28),
+    inset 0 -7px 16px rgba(255, 250, 240, .14);
+}
+/* A second copy of the book, sitting beside the glass outside the tilt, and
+   scaled about whichever page point the glass is currently over. */
+.zoomwrap { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 2; opacity: 0; }
+.zoominner { position: absolute; inset: 0; transform-origin: 0 0; }
+.lens:before, .lens:after { content: ""; position: absolute; inset: 0; border-radius: 50%; pointer-events: none; }
+.lens:before { z-index: 1; }
+.lens:after { z-index: 2; }
+/* the glass bends and darkens toward its rim, with a faint colour fringe */
+.lens:before {
+  background: radial-gradient(circle at 50% 50%,
+    rgba(0, 0, 0, 0) 54%, rgba(58, 44, 26, .10) 76%, rgba(46, 34, 16, .34) 100%);
+  box-shadow:
+    inset 0 0 0 2px rgba(130, 162, 196, .26),
+    inset 0 0 0 4px rgba(206, 158, 112, .15);
+}
+/* the dome: one broad specular and a tight crescent opposite it */
+.lens:after {
+  background:
+    radial-gradient(36% 26% at 29% 19%, rgba(255, 255, 255, .30), rgba(255, 255, 255, 0) 76%),
+    radial-gradient(24% 16% at 74% 86%, rgba(255, 255, 255, .12), rgba(255, 255, 255, 0) 80%),
+    linear-gradient(150deg, rgba(255, 255, 255, .06) 0 18%, rgba(255, 255, 255, 0) 42%);
+}
+@media (pointer: coarse) { .loupe { display: none; } }
+
+/* ---- hit zones + controls ---- */
+.sb-zone {
+  position: absolute; top: 0; bottom: 0; border: 0; background: transparent;
+  z-index: 60; -webkit-tap-highlight-color: transparent;
+}
+.sb-prev { left: 0; width: 50%; }
+.sb-next { right: 0; width: 50%; }
+
+/* Retired: the per-page title used to sit here, above the tools. The
+   element stays in the DOM (sketchbook.js still writes to it on every page
+   turn) but is no longer shown — .sb-hint now occupies this slot instead. */
+.sb-captions { display: none; }
+.sb-caption {
+  font-family: var(--sb-font); font-size: 13px; font-weight: 400;
+  letter-spacing: .24em; text-transform: uppercase; color: var(--sb-soft);
+  animation: sb-cap-in .5s ease both;
+}
+.sb-caption.live { animation: none; }
+@keyframes sb-cap-in { 0% { opacity: 0; } }
+
+.sb-tools { display: flex; align-items: center; }
+
+/* One control now: the magnifier, off until asked for. */
+.tool {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 30px; padding: 0 14px;
+  border: 1px solid var(--sb-hair); border-radius: 999px;
+  background: rgba(250, 246, 238, .5); color: var(--sb-soft);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  font-family: var(--sb-font); font-size: 11px; font-weight: 500;
+  letter-spacing: .14em; text-transform: uppercase;
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease;
+}
+.tool svg { width: 14px; height: 14px; display: block; }
+.tool:hover { background: rgba(255, 252, 244, .86); color: var(--sb-ink); }
+.tool[aria-pressed="true"] {
+  background: rgba(154, 106, 62, .18); border-color: rgba(154, 106, 62, .42);
+  color: var(--sb-earth);
+}
+
+.sb-hint {
+  white-space: nowrap;
+  margin: 8px 0 0; font-family: var(--sb-font); font-size: 11px;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--red);
+  transition: opacity .4s ease;
+}
+.sb-hint.gone { opacity: 0; }
+
+/* directional motion blur on the leaves during the opening riffle */
+.sb-wrap.intro .sb-half-img { filter: url(#sb-mblur-1); }
+.sb-wrap.intro.b2 .sb-half-img { filter: url(#sb-mblur-2); }
+.sb-wrap.intro .sb-caption { animation: none; }
+
+@media (max-width: 900px) {
+  .sb-3d { max-width: none; }
+  .sb-hint { font-size: 9.5px; letter-spacing: .1em; text-align: center; }
+}
+
+/* ── Trust — copy paired with a photo, side by side ──────────────────────
+   A normal in-flow section, not pinned: nothing here is scroll-driven (the
+   photo wall's own drift is on a timer/drag, not scroll position), so a
+   200vh scroll-through held nothing but static text and just read as extra
+   scrolling for no payoff. Statement keeps its own pin below — its reveal
+   wipe is genuinely scroll-scrubbed across that range. */
+.trust { position: relative; padding: 28vh var(--gut) 16vh; }
+.trust__pin {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: clamp(32px, 5vw, 80px);
+}
+
+/* ── Statement — same copy/photo pairing, pinned so its reveal-slider wipe
+   can be scroll-scrubbed across the full 200vh (see reveal-slider.tsx). ── */
+.statement { height: 200vh; position: relative; }
+.statement__pin {
+  position: sticky; top: 0; height: 100vh;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: clamp(32px, 5vw, 80px);
+  padding: 0 var(--gut);
+}
+
+.trust__copy, .statement__copy { max-width: 620px; min-width: 320px; position: relative; flex: 1 1 420px; }
+
+/* The polaroid scatter's lowest slot sits at 52% of its mount, so the cluster
+   only fills the top ~545px of the 660px box (see SLOTS in
+   scattered-polaroids.tsx). Centring against the box therefore lands the copy
+   about 36px below the photos' optical centre; this pulls it back up without
+   resizing the mount, which would re-space the scatter itself. */
+.trust__copy { margin-bottom: 72px; }
+
+/* Trust's photo mount is a scatter canvas (see scattered-polaroids.tsx), not
+   a single framed box — it needs real room for tiles to spread and overlap,
+   not a tight aspect-ratio crop. */
+.trust__photo {
+  flex: 1 1 480px; min-width: 0; max-width: 620px;
+  position: relative; height: 660px;
+}
+.statement__photo {
+  flex: 1 1 420px; min-width: 0; max-width: 480px;
+  aspect-ratio: 4 / 5; object-fit: cover; border-radius: 4px;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, .5);
+}
+
+/* ── Contact ──────────────────────────────────────────────────────────── */
+
+/* Top and bottom padding are deliberately tight: .contact carries the footer
+   too, and at 20vh/16vh the whole section ran taller than the viewport, so
+   the page's resting position at full scroll hid the first form row behind
+   the fixed masthead. */
+.contact { position: relative; padding: 14vh var(--gut) 0; }
+.contact__inner {
+  display: grid;
+  grid-template-columns: 1fr 1.05fr;
+  gap: clamp(50px, 7vw, 130px);
+  align-items: start;
+  padding-bottom: 7vh;
+}
+.contact__details { list-style: none; margin: 3em 0 0; padding: 0; display: grid; gap: 14px; }
+.contact__details li {
+  display: grid; grid-template-columns: 90px 1fr; gap: 16px; align-items: baseline;
+  padding-bottom: 14px; border-bottom: 1px solid var(--line-soft);
+}
+.contact__details span {
+  font-family: var(--f-ui); font-size: 11px;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--bone-faint);
+}
+.contact__details b { font-weight: 400; font-size: 15px; }
+
+.form { display: grid; grid-template-columns: 1fr 1fr; gap: 26px 22px; }
+.field { position: relative; }
+.field--wide { grid-column: 1 / -1; }
+.field input, .field select, .field textarea {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(244, 244, 246, 0.22);
+  padding: 14px 0 11px;
+  font-family: var(--f-ui);
+  font-size: 15px;
+  color: var(--bone);
+  border-radius: 0;
+  transition: border-color .4s var(--ease);
+  appearance: none;
+}
+.field textarea { resize: vertical; min-height: 92px; line-height: 1.6; }
+.field select option { background: var(--ink-2); color: var(--bone); }
+/* appearance:none strips the native arrow; without one this is visually
+   indistinguishable from the text inputs beside it. */
+.field select {
+  padding-right: 28px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none' stroke='%23F4F4F6' stroke-opacity='.55' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 1.5 6 6.5l5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 2px center;
+  background-size: 12px 8px;
+  transition: border-color .4s var(--ease), background-position .3s var(--ease);
+}
+.field select:hover { background-position: right 2px calc(50% + 2px); }
+.field input:hover, .field select:hover, .field textarea:hover {
+  border-bottom-color: rgba(244, 244, 246, 0.4);
+}
+.field label {
+  position: absolute;
+  left: 0; top: 14px;
+  font-size: 15px;
+  color: var(--bone-faint);
+  pointer-events: none;
+  transform-origin: left top;
+  transition: transform .4s var(--ease), color .4s var(--ease);
+}
+.field label i { font-style: normal; opacity: .55; font-size: 12px; }
+.field input:focus, .field select:focus, .field textarea:focus {
+  outline: none; border-bottom-color: var(--red);
+}
+.field input:focus + label,
+.field input:not(:placeholder-shown) + label,
+.field textarea:focus + label,
+.field textarea:not(:placeholder-shown) + label,
+.field select:focus + label,
+.field select.has-value + label {
+  transform: translateY(-22px) scale(.72);
+  color: var(--red);
+}
+.field__err {
+  display: block;
+  min-height: 15px;
+  margin-top: 6px;
+  font-family: var(--f-ui);
+  font-size: 10px;
+  letter-spacing: .04em;
+  color: #E0705F;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity .3s var(--ease), transform .3s var(--ease);
+}
+.field.is-invalid .field__err { opacity: 1; transform: translateY(0); }
+.field.is-invalid input,
+.field.is-invalid select,
+.field.is-invalid textarea { border-bottom-color: #E0705F; }
+
+.btn--submit {
+  grid-column: 1 / -1; justify-self: start; margin-top: 6px;
+  font-size: 13px; padding: 4px 0;
+}
+.btn--submit::before { content: '['; opacity: .5; margin-right: 8px; }
+.btn--submit::after { content: ']'; opacity: .5; margin-left: 8px; }
+.btn--submit { color: var(--bone); opacity: .8; transition: color .35s var(--ease), opacity .35s var(--ease); }
+.btn--submit:hover { color: var(--red); opacity: 1; }
+
+.form__note {
+  grid-column: 1 / -1;
+  font-family: var(--f-ui); font-size: 11px;
+  letter-spacing: .04em;
+  color: var(--red); margin: 0; min-height: 16px;
+  opacity: 0; transition: opacity .4s var(--ease);
+}
+.form__note.is-on { opacity: 1; }
+
+/* ── Footer — three columns, matching the reference exactly ─────────────── */
+
+.footer {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr;
+  gap: 24px;
+  padding: 48px var(--gut) 40px;
+  border-top: 1px solid var(--line-soft);
+}
+.footer__col span {
+  display: block;
+  font-family: var(--f-ui); font-size: 10px;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: var(--bone-faint); margin-bottom: 10px;
+}
+.footer__col b { display: block; font-weight: 600; font-size: 14px; color: var(--bone); }
+.footer__col p { margin: 0; font-size: 14px; line-height: 1.6; color: var(--bone-dim); }
+.footer__col .bl { margin-top: 4px; }
+
+@media (max-width: 1180px) {
+  .contact__inner { grid-template-columns: 1fr; }
+  .footer { grid-template-columns: 1fr; gap: 28px; }
+}
