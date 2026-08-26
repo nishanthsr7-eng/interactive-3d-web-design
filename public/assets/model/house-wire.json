@@ -1,0 +1,29 @@
+{
+  "source": "make_your_own_steampunk_house.glb",
+  "credit": {
+    "author": "Conrad Justin (https://sketchfab.com/ConradJustin)",
+    "license": "SKETCHFAB Standard (https://sketchfab.com/licenses)",
+    "source": "https://sketchfab.com/3d-models/make-your-own-steampunk-house-0bceb4f2d7444809b022ba864ac03df3",
+    "title": "Make your own steampunk house"
+  },
+  "region": {
+    "minX": 3.5
+  },
+  "segments": 13000,
+  "angleDeg": 32,
+  "quantScale": 0.0002122911349110387,
+  "quantOffset": 2.2984836101531982,
+  "bounds": {
+    "width": 9.315320111314584,
+    "height": 9.6,
+    "depth": 6.165412719571118
+  },
+  "phases": [
+    "foundation",
+    "walls",
+    "framing",
+    "roof",
+    "mechanical",
+    "props"
+  ]
+}
