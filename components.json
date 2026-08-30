@@ -1,0 +1,20 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "default",
+  "rsc": false,
+  "tsx": true,
+  "tailwind": {
+    "config": "tailwind.config.js",
+    "css": "src/wheel/index.css",
+    "baseColor": "neutral",
+    "cssVariables": false,
+    "prefix": ""
+  },
+  "aliases": {
+    "components": "src/wheel/components",
+    "utils": "src/wheel/lib/utils",
+    "ui": "src/wheel/components/ui",
+    "lib": "src/wheel/lib",
+    "hooks": "src/wheel/hooks"
+  }
+}

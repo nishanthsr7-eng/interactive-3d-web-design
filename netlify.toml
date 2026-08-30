@@ -1,0 +1,25 @@
+[build]
+  publish = "public"
+  # Both JS bundles are built at deploy time and gitignored:
+  #   src/site/  -> public/js/site-bundle.js
+  #   src/wheel/ -> public/js/wheel-bundle.js + public/css/wheel-bundle.css
+  command = "npm run build"
+
+# Photos and the baked model geometry never change in place; cache hard.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# The bundles are not content-hashed, so they have to revalidate.
+[[headers]]
+  for = "/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
