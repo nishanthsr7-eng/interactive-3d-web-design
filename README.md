@@ -1,8 +1,10 @@
-# VINCI Builders — 3D scrollytelling site
-
-A single-page, desktop-targeted site for a fictional Bengaluru construction
-practice. Five sections, one shared WebGL stage, and a React island for the two
-photo components. `public/` is the entire deployable site.
+ # VINCI Builders — 3D scrollytelling site
+ 
++**Live:** [vinci-interactive-landing-page.pages.dev](https://vinci-interactive-landing-page.pages.dev)
++
+ A single-page, desktop-targeted site for a fictional Bengaluru construction
+ practice. Five sections, one shared WebGL stage, and a React island for the two
+ photo components. `public/` is the entire deployable site.
 
 ## Quick start
 
