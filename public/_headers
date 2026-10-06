@@ -1,18 +1,21 @@
-# Cloudflare Pages reads this file; it ignores netlify.toml and vercel.json.
-# Keep the three in sync — the rules below mirror what those two already set.
+# Cloudflare Pages host rules. Copied into dist/ by scripts/build.mjs.
 
 # Photos and the baked model geometry never change in place; cache hard.
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 
-# Neither bundle is content-hashed, so both have to revalidate or a deploy
-# leaves visitors on stale JavaScript.
+# Both JS bundles are content-hashed: a new build means a new URL, so the
+# old one can be cached forever.
 /js/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# main.css is hand-written and not hashed, so it has to revalidate. The
+# hashed wheel stylesheet gets the immutable rule.
+/css/main.css
   Cache-Control: public, max-age=0, must-revalidate
 
-# main.css is hand-written and wheel-bundle.css is built; neither is hashed.
-/css/*
-  Cache-Control: public, max-age=0, must-revalidate
+/css/wheel-*
+  Cache-Control: public, max-age=31536000, immutable
 
 /
   Cache-Control: public, max-age=0, must-revalidate

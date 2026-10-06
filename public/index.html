@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>VINCI Builders — Structures that outlive the brief</title>
-<meta name="description" content="VINCI Builders design and construct bespoke homes, villas and vertical extensions across Bengaluru. Precision engineering, honest materials, delivered turnkey.">
+<meta name="description" content="VINCI Builders design and construct bespoke homes, villas and vertical extensions built to outlive the brief. Precision engineering, honest materials, delivered turnkey.">
 <meta name="theme-color" content="#000000">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,8 +32,10 @@
     <p class="gate__word">VINCI</p>
     <p class="gate__copy">
       This experience was built for a large screen and a real graphics card.
-      Please open it on a desktop or laptop.
+      Please open it on a desktop or laptop. Here is a preview:
     </p>
+    <video class="gate__video" muted loop playsinline preload="none"
+           poster="assets/video/preview.jpg" data-src="assets/video/preview.mp4"></video>
   </div>
 </div>
 
@@ -105,12 +107,12 @@
           <span class="line" data-reveal><strong>Outlive</strong> the brief.</span>
         </h1>
         <p class="lede" data-reveal>
-          Design-led construction across Bengaluru — homes, villas and
+          Design-led construction without compromise — homes, villas and
           vertical extensions, engineered in three dimensions before a
           single brick is laid.
         </p>
         <div class="hero__badges">
-          <span data-reveal>Bengaluru · Est. 2009</span>
+          <span data-reveal>Design &amp; Build · Est. 2009</span>
           <b data-reveal><span class="badge-count" data-count-to="40">0</span>+ homes delivered</b><b data-reveal>Zero litigation</b>
         </div>
       </div>
@@ -200,11 +202,11 @@
         <p class="kicker" data-reveal>Proven on site</p>
         <h2 class="display display--section" data-reveal>We build what <strong>survives scrutiny.</strong></h2>
         <p class="lede" data-reveal>
-          From heritage bungalows in Basavanagudi to vertical extensions in
-          Indiranagar, VINCI's work holds up to structural audit and
+          From restored heritage homes to new vertical extensions,
+          VINCI's work holds up to structural audit and
           everyday life alike. Every project is signed off by a licensed
           structural engineer — so what looks right on the drawing survives
-          the monsoon, the termites, and forty years of use.
+          the weather, the wear, and forty years of use.
         </p>
       </div>
       <!-- Mounted by src/wheel/main.tsx (React): a scattered cluster of
@@ -246,8 +248,8 @@
           enquiry within two working days.
         </p>
         <ul class="contact__details" data-reveal>
-          <li><span>Studio</span><b>Indiranagar, Bengaluru 560038</b></li>
-          <li><span>Phone</span><b>+91 80 4000 0000</b></li>
+          <li><span>Studio</span><b>By appointment</b></li>
+          <li><span>Phone</span><b>+91 98765 43210</b></li>
           <li><span>Email</span><b>studio@vincibuilders.in</b></li>
           <li><span>Hours</span><b>Mon–Sat, 09:30 – 18:30 IST</b></li>
         </ul>
@@ -302,9 +304,9 @@
 
     <footer class="footer">
       <div class="footer__col">
-        <span>Studio / Bengaluru</span>
+        <span>Studio / Design &amp; Build</span>
         <b>VINCI Builders</b>
-        <p>Indiranagar, Bengaluru 560038, Karnataka</p>
+        <p>Residential &amp; vertical extensions</p>
       </div>
       <div class="footer__col">
         <span>Principal Architect</span>
@@ -314,7 +316,7 @@
       <div class="footer__col">
         <span>Legal</span>
         <p>© <span id="year"></span> VINCI Builders</p>
-        <p>Bengaluru, Karnataka</p>
+        <p>All rights reserved</p>
       </div>
     </footer>
   </section>
@@ -322,8 +324,8 @@
 </main>
 
 <!-- Both bundles are built by Vite (see vite.site.config.ts and
-     vite.wheel.config.ts) and are gitignored — run `npm run build` once
-     before `npm run dev`. -->
+     vite.wheel.config.ts) into dist/ with content-hashed names;
+     scripts/build.mjs rewrites these three paths to match. -->
 <script src="/js/site-bundle.js" defer></script>
 <script src="/js/wheel-bundle.js" defer></script>
 </body>

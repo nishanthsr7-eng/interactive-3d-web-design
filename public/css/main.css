@@ -162,6 +162,10 @@ img, svg { display: block; max-width: 100%; }
   margin: 0 0 18px; text-indent: 0.42em;
 }
 .gate__copy { color: var(--bone-dim); max-width: 34ch; margin: 0 auto; font-size: 15px; }
+.gate__video {
+  display: block; width: min(560px, 100%); aspect-ratio: 16 / 9;
+  margin: 24px auto 0; border-radius: 6px; background: #000; object-fit: cover;
+}
 html.is-gated .masthead,
 html.is-gated main,
 html.is-gated .preloader,
@@ -491,7 +495,6 @@ main { position: relative; z-index: 4; }
 /* The 3D backdrop is switched off by the time this section centres on
    screen (see the #sketchbook fade in main.js), leaving the site's own
    black ground — the warm book is the only lit thing on the desk.
-   Geometry, shading and the loupe follow github.com/MengTo/sketchbook.
    Pages are composited to canvas at boot and fill their own rect, so the
    paper inset --pg is 0 and each half is exactly half the book. */
 
@@ -892,9 +895,11 @@ main { position: relative; z-index: 4; }
   transition: opacity .25s ease; will-change: transform;
 }
 .loupe.on { opacity: 1; }
+/* Only a visible loupe takes the pointer — a hidden one used to swallow page turns. */
+.loupe.on .ring, .loupe.on .grip { pointer-events: auto; }
 .loupe .ring {
   position: absolute; inset: 0; border-radius: 50%;
-  pointer-events: auto;
+  pointer-events: none;
   padding: calc(var(--lr, 240px) * .058);
   box-shadow:
     0 1px 2px rgba(58, 44, 26, .30),
@@ -921,7 +926,7 @@ main { position: relative; z-index: 4; }
   transform-origin: 0 50%;
   transform: rotate(40deg) translate(calc(var(--lr, 240px) * .33), -50%);
   border-radius: calc(var(--lr, 240px) * .06);
-  pointer-events: auto;
+  pointer-events: none;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, .46) 0 13%, rgba(255, 255, 255, 0) 44%,
                     rgba(0, 0, 0, .26) 100%),

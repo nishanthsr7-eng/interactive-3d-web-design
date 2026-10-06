@@ -11,14 +11,18 @@ const BASE = 'assets/model/house-wire';
 
 /**
  * @returns {Promise<{positions: Float32Array, meta: object}|null>}
- *   null if the bake is missing, so the hero can fall back to the procedural
- *   house rather than booting to an empty stage.
+ *   null if the bake is missing or fails to load. The hero then stays an empty
+ *   group — there is no procedural fallback — and the rest of the page boots.
  */
 export async function loadModelWireframe(base = BASE) {
   try {
     const [meta, buffer] = await Promise.all([
-      fetch(`${base}.json`).then(assertOk).then((r) => r.json()),
-      fetch(`${base}.bin`).then(assertOk).then((r) => r.arrayBuffer()),
+      fetch(`${base}.json`)
+        .then(assertOk)
+        .then((r) => r.json()),
+      fetch(`${base}.bin`)
+        .then(assertOk)
+        .then((r) => r.arrayBuffer()),
     ]);
 
     const quantised = new Int16Array(buffer);
@@ -29,7 +33,7 @@ export async function loadModelWireframe(base = BASE) {
 
     return { positions, meta };
   } catch (err) {
-    console.warn('[model-wire] falling back to the procedural house:', err.message);
+    console.warn('[model-wire] bake failed to load, hero left empty:', err.message);
     return null;
   }
 }

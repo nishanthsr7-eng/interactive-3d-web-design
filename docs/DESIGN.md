@@ -47,8 +47,8 @@ buttons.
 ![Hero](screenshots/01-hero.png)
 
 A single glowing rose-line-segment house (`src/site/scenes/hero-model.js`),
-not a shaded render — literally a blueprint. It's the real "steampunk house"
-model, reduced from a 116 MB Sketchfab GLB to its feature edges by
+not a shaded render — literally a blueprint. It's the "Make your own steampunk house"
+model by [Conrad Justin](https://sketchfab.com/ConradJustin), reduced from a 116 MB Sketchfab GLB to its feature edges by
 `scripts/build-model-wire.mjs` (boundary edges + creases past 32°, quantised
 to int16 — about 150 KB on the wire instead of 116 MB), then drawn with
 `THREE.LineSegments` and additive blending.
@@ -133,11 +133,8 @@ is active, so this is a full cursor replacement, not an addition.
 ![Sketchbook — a settled spread](screenshots/03-sketchbook-spread.png)
 ![Sketchbook — the opening riffle](screenshots/02-sketchbook-riffle.png)
 
-The centerpiece: a real page-turning book (`src/site/ui/sketchbook.js`),
-adapted from the mechanic in
-[MengTo/sketchbook](https://github.com/MengTo/sketchbook) (uncredited-license
-original, so this is a from-scratch reimplementation of the technique, not a
-copy of its code or art) and re-themed onto VINCI's dark ground.
+The centerpiece: a real page-turning book (`src/site/ui/sketchbook.js`) on
+VINCI's dark ground.
 
 **How a page-turn is actually built**: the turning leaf is not one flat panel
 on a hinge. It's a chain of **18 nested strips**, each carrying a front and

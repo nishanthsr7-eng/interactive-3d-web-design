@@ -1,29 +1,38 @@
 {
-  "name": "vinci-builders",
+  "name": "interactive-3d-web-design",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "VINCI Builders — 3D scrollytelling experience",
+  "description": "VINCI - Interactive 3D Web Experience",
   "author": "Nishanth S",
   "license": "MIT",
   "scripts": {
-    "build:site": "vite build -c vite.site.config.ts",
-    "build:wheel": "vite build -c vite.wheel.config.ts",
-    "build": "npm run build:site && npm run build:wheel",
+    "build": "node scripts/build.mjs",
     "dev": "npm run build && node scripts/serve.mjs",
-    "dev:site": "vite build -c vite.site.config.ts --watch",
-    "dev:wheel": "vite build -c vite.wheel.config.ts --watch",
-    "serve": "node scripts/serve.mjs"
+    "serve": "node scripts/serve.mjs",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.site.json",
+    "test": "vitest run"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
+    "@types/three": "^0.170.0",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.13.0",
     "postcss": "^8.4.49",
+    "prettier": "^3.9.9",
     "tailwindcss": "^3.4.15",
     "typescript": "^5.7.2",
-    "vite": "^6.0.3"
+    "typescript-eslint": "^8.71.1",
+    "vite": "^6.0.3",
+    "vitest": "^3.2.7"
   },
   "dependencies": {
     "clsx": "^2.1.1",

@@ -42,7 +42,9 @@ export function initCursor() {
 
   // Delegate state changes so elements added later still work.
   document.addEventListener('pointerover', (e) => {
-    const target = e.target.closest?.('[data-cursor]');
+    const target = /** @type {HTMLElement|null} */ (
+      /** @type {Element} */ (e.target).closest?.('[data-cursor]')
+    );
     if (!target) return;
     const mode = target.dataset.cursor;
     root.dataset.mode = mode;
@@ -50,8 +52,8 @@ export function initCursor() {
   });
 
   document.addEventListener('pointerout', (e) => {
-    if (!e.target.closest?.('[data-cursor]')) return;
-    if (e.relatedTarget?.closest?.('[data-cursor]')) return;
+    if (!(/** @type {Element} */ (e.target).closest?.('[data-cursor]'))) return;
+    if (/** @type {Element|null} */ (e.relatedTarget)?.closest?.('[data-cursor]')) return;
     root.dataset.mode = '';
     label.textContent = '';
   });

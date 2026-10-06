@@ -8,7 +8,13 @@
 
 import { isSupported, showGate } from './core/gate.js';
 import {
-  initScroll, gsap, ScrollTrigger, stopScroll, startScroll, scrollTo, REDUCED_MOTION,
+  initScroll,
+  gsap,
+  ScrollTrigger,
+  stopScroll,
+  startScroll,
+  scrollTo,
+  REDUCED_MOTION,
 } from './core/scroll.js';
 import { initStage, startRenderLoop, setActActive, setBloom, stage } from './core/stage.js';
 import { initCursor } from './core/cursor.js';
@@ -23,11 +29,11 @@ const acts = {};
 
 boot().catch((err) => {
   console.error('[VINCI] boot failed:', err);
-  window.__vinciBootError = err;
+  /** @type {any} */ (window).__vinciBootError = err;
 });
 
 async function boot() {
-  document.getElementById('year').textContent = new Date().getFullYear();
+  document.getElementById('year').textContent = String(new Date().getFullYear());
 
   if (!isSupported()) {
     showGate();
@@ -119,12 +125,16 @@ async function runIntro() {
   const target = { x: lookAt[0], y: lookAt[1], z: lookAt[2] };
 
   gsap.to(stage.camera.position, {
-    x: position[0], y: position[1], z: position[2],
+    x: position[0],
+    y: position[1],
+    z: position[2],
     duration: 3.2,
     ease: 'power2.inOut',
   });
   gsap.to(target, {
-    x: lookAt[0], y: lookAt[1], z: lookAt[2],
+    x: lookAt[0],
+    y: lookAt[1],
+    z: lookAt[2],
     duration: 3.2,
     ease: 'power2.inOut',
     onUpdate: () => stage.camera.lookAt(target.x, target.y, target.z),
@@ -136,10 +146,12 @@ async function runIntro() {
 /* ── Preloader ─────────────────────────────────────────────────────────── */
 
 function startPreloaderAnimation() {
-  const paths = document.querySelectorAll('.preloader__mark .pl-line');
+  const paths = /** @type {NodeListOf<SVGGeometryElement>} */ (
+    document.querySelectorAll('.preloader__mark .pl-line')
+  );
   paths.forEach((p) => {
     const len = p.getTotalLength();
-    p.style.setProperty('--len', len);
+    p.style.setProperty('--len', String(len));
   });
 
   gsap.to('.preloader__mark .pl-line', {
@@ -154,7 +166,7 @@ function updatePreloader(loaded, total) {
   const pct = Math.round((loaded / total) * 100);
   const el = document.getElementById('preloader-pct');
   const fill = document.getElementById('preloader-fill');
-  if (el) el.textContent = pct;
+  if (el) el.textContent = String(pct);
   if (fill) fill.style.width = `${pct}%`;
 }
 
@@ -222,7 +234,7 @@ function wireTimeline() {
   const CLOSEUP_SPLIT = 0.51;
   const heroGroup = acts.hero.group;
   const heroBaseScale = heroGroup.scale.x;
-  const heroPin = document.querySelector('.hero__pin');
+  const heroPin = /** @type {HTMLElement} */ (document.querySelector('.hero__pin'));
   // .hero__pin::before's legibility gradient needs to be gone well before
   // the sketchbook approach finishes (see the CSS comment on it) — done by
   // 40% into this trigger, i.e. before CLOSEUP_SPLIT, not tied to it.

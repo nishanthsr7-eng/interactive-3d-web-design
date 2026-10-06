@@ -49,7 +49,7 @@ function openMailClient(payload) {
   )}&body=${encodeURIComponent(body)}`;
 }
 
-const RULES = {
+export const RULES = {
   name: (v) => (v.trim().length >= 2 ? '' : 'Please enter your name'),
   email: (v) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()) ? '' : 'Enter a valid email address',
@@ -60,7 +60,7 @@ const RULES = {
 };
 
 export function initForm() {
-  const form = document.getElementById('enquiry-form');
+  const form = /** @type {HTMLFormElement} */ (document.getElementById('enquiry-form'));
   if (!form) return;
 
   const note = document.getElementById('form-note');
@@ -68,7 +68,9 @@ export function initForm() {
   const endpoint = (form.dataset.endpoint || '').trim();
 
   const validateField = (field, { silent = false } = {}) => {
-    const input = field.querySelector('input, select, textarea');
+    const input = /** @type {HTMLInputElement|null} */ (
+      field.querySelector('input, select, textarea')
+    );
     if (!input) return true;
     const rule = RULES[input.name];
     const msg = rule ? rule(input.value) : '';
@@ -83,7 +85,9 @@ export function initForm() {
   };
 
   for (const field of fields) {
-    const input = field.querySelector('input, select, textarea');
+    const input = /** @type {HTMLInputElement|null} */ (
+      field.querySelector('input, select, textarea')
+    );
     if (!input) continue;
 
     // Only nag once the user has left the field.
@@ -109,19 +113,15 @@ export function initForm() {
     const firstBad = fields[results.indexOf(false)];
 
     if (firstBad) {
-      gsap.fromTo(
-        firstBad,
-        { x: -7 },
-        { x: 0, duration: 0.55, ease: 'elastic.out(1, 0.35)' }
-      );
-      firstBad.querySelector('input, select, textarea')?.focus();
+      gsap.fromTo(firstBad, { x: -7 }, { x: 0, duration: 0.55, ease: 'elastic.out(1, 0.35)' });
+      /** @type {HTMLElement|null} */ (firstBad.querySelector('input, select, textarea'))?.focus();
       note.textContent = 'Please correct the highlighted fields';
       note.style.color = '#E0705F';
       note.classList.add('is-on');
       return;
     }
 
-    const btn = form.querySelector('.btn--submit');
+    const btn = /** @type {HTMLButtonElement} */ (form.querySelector('.btn--submit'));
     const label = btn.querySelector('span');
     const original = label.textContent;
 

@@ -99,7 +99,7 @@ function resize() {
  * Register a 3D act.
  *
  * @param {string} id
- * @param {{group:THREE.Group, update?:Function, enter?:Function, exit?:Function, resize?:Function}} act
+ * @param {{group:THREE.Group, update?:Function, enter?:Function, exit?:Function, resize?:Function, [key: string]: any}} act
  */
 export function registerAct(id, act) {
   act.id = id;

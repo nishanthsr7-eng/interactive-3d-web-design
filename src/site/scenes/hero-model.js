@@ -72,7 +72,9 @@ function buildGrid() {
   // transparency (~34 units out), so the mesh's own edge is never what's
   // making lines disappear — the fade always gets there first, regardless
   // of exactly where the camera sits during the hero/sketchbook handoff.
-  const grid = new THREE.GridHelper(120, 60, ROSE, ROSE);
+  const grid = /** @type {THREE.LineSegments<THREE.BufferGeometry, THREE.ShaderMaterial>} */ (
+    /** @type {unknown} */ (new THREE.GridHelper(120, 60, ROSE, ROSE))
+  );
   grid.position.y = -0.15;
   grid.material = new THREE.ShaderMaterial({
     vertexShader: gridVertex,
@@ -194,7 +196,10 @@ export function createHeroModel() {
   // known in screen space, so each frame it's cast onto the horizontal plane
   // the grid sits on and converted into the group's own local space.
   const raycaster = new THREE.Raycaster();
-  const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -(group.position.y + grid.position.y * group.scale.y));
+  const groundPlane = new THREE.Plane(
+    new THREE.Vector3(0, 1, 0),
+    -(group.position.y + grid.position.y * group.scale.y)
+  );
   const worldHit = new THREE.Vector3();
   const pointerLocal = new THREE.Vector2();
 

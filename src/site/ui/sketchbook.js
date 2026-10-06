@@ -12,13 +12,9 @@
  * outside the tilt transform, so leaning the book never drags the glass with
  * it, and it fades out as the glass wanders off the paper.
  *
- * Technique follows github.com/MengTo/sketchbook (which carries no LICENSE, so
- * this is a reimplementation of the mechanic rather than a copy of its code or
- * artwork), re-themed onto VINCI's dark ground.
- *
- * One adaptation: that project ships each spread as a single pre-rendered PNG
- * of an open book. Ours are ordinary landscape renders in mixed aspect ratios,
- * with written notes facing them, so every page is composited to a canvas at
+ * Spreads are not pre-rendered PNGs of an open book. They are ordinary
+ * landscape renders in mixed aspect ratios, with written notes facing them,
+ * so every page is composited to a canvas at
  * boot — uniform page size, real Inter typography, one image per left page and
  * its note opposite. Everything downstream sees a plain image URL per page and
  * is unchanged.
@@ -89,18 +85,18 @@ SPREADS.forEach((s) => (s.url = DIR + s.img));
    2.8:1 — wide and low, the shape of a bound photographic album rather than
    the portrait sketchbook this started as. .sb-book's aspect-ratio in
    main.css is 2*PAGE_W / PAGE_H and has to move with these. */
-const PAGE_W = 1300;  // composited page, device pixels
+const PAGE_W = 1300; // composited page, device pixels
 const PAGE_H = 930;
-const N = 18;         // strips — enough for a smooth curve
-const SPAN = 0.5;     // gutter -> outer page edge, as a fraction of book width
-const BETA = 0.6;     // peak curl of the arc, radians
-const LAND = 0;       // page the opening riffle settles on
-const MAG = 2.3;      // loupe magnification
-const TILT_X = 4.5;   // degrees — deliberately restrained
+const N = 18; // strips — enough for a smooth curve
+const SPAN = 0.5; // gutter -> outer page edge, as a fraction of book width
+const BETA = 0.6; // peak curl of the arc, radians
+const LAND = 0; // page the opening riffle settles on
+const MAG = 2.3; // loupe magnification
+const TILT_X = 4.5; // degrees — deliberately restrained
 const TILT_Y = 7;
 const ZOOM_MIN = 0.9;
 const ZOOM_MAX = 1.5;
-const SHEETS = 7;      // sheets drawn per side to stand in for the page block
+const SHEETS = 7; // sheets drawn per side to stand in for the page block
 /* How far the vanishing point tracks the cursor, in % of the stage. This is
    the viewer moving their head, not the book turning — small numbers here do
    far more for the sense of a solid object than a bigger lean would. */
@@ -128,14 +124,18 @@ export function initSketchbook() {
   const hint = document.getElementById('sbHint');
   if (!wrap || !book) return;
 
-  const PAGES = [];               // {left,right} object URLs, filled by buildPages()
+  const PAGES = []; // {left,right} object URLs, filled by buildPages()
   const M = SPREADS.length;
   let ready = false;
   let idx = 0;
-  let turn = null;                // {dir, from, to, t}
+  let turn = null; // {dir, from, to, t}
   let strips = [];
 
-  const el = (t, c) => { const e = document.createElement(t); if (c) e.className = c; return e; };
+  const el = (t, c) => {
+    const e = document.createElement(t);
+    if (c) e.className = c;
+    return e;
+  };
 
   /* ── Page compositing ───────────────────────────────────────────────── */
 
@@ -173,8 +173,8 @@ export function initSketchbook() {
       const len = 4 + Math.random() * 16;
       const ang = (Math.random() - 0.5) * 0.5; // mostly with the grain
       const a = 0.018 + Math.random() * 0.042;
-      ctx.strokeStyle = Math.random() > 0.5
-        ? `rgba(126,106,76,${a})` : `rgba(255,253,247,${a * 1.35})`;
+      ctx.strokeStyle =
+        Math.random() > 0.5 ? `rgba(126,106,76,${a})` : `rgba(255,253,247,${a * 1.35})`;
       ctx.lineWidth = Math.random() > 0.82 ? 1.6 : 0.8;
       ctx.beginPath();
       ctx.moveTo(x, y);
@@ -185,8 +185,8 @@ export function initSketchbook() {
     // 4. Specks, for the loupe to find.
     for (let n = 0; n < 3200; n++) {
       const a = Math.random() * 0.05;
-      ctx.fillStyle = Math.random() > 0.5
-        ? `rgba(120,102,74,${a})` : `rgba(255,252,244,${a * 1.4})`;
+      ctx.fillStyle =
+        Math.random() > 0.5 ? `rgba(120,102,74,${a})` : `rgba(255,252,244,${a * 1.4})`;
       ctx.fillRect(Math.random() * PAGE_W, Math.random() * PAGE_H, 2, 2);
     }
   }
@@ -202,9 +202,10 @@ export function initSketchbook() {
 
     // The fold falls away into shadow near the gutter.
     const w = PAGE_W * 0.13;
-    const gg = gutterSide === 'right'
-      ? ctx.createLinearGradient(PAGE_W - w, 0, PAGE_W, 0)
-      : ctx.createLinearGradient(w, 0, 0, 0);
+    const gg =
+      gutterSide === 'right'
+        ? ctx.createLinearGradient(PAGE_W - w, 0, PAGE_W, 0)
+        : ctx.createLinearGradient(w, 0, 0, 0);
     gg.addColorStop(0, 'rgba(76,56,30,0)');
     gg.addColorStop(0.62, 'rgba(76,56,30,0.10)');
     gg.addColorStop(1, 'rgba(58,42,22,0.42)');
@@ -232,8 +233,10 @@ export function initSketchbook() {
     let line = '';
     for (const word of text.split(' ')) {
       const t = line ? `${line} ${word}` : word;
-      if (line && ctx.measureText(t).width > maxW) { out.push(line); line = word; }
-      else line = t;
+      if (line && ctx.measureText(t).width > maxW) {
+        out.push(line);
+        line = word;
+      } else line = t;
     }
     if (line) out.push(line);
     return out;
@@ -242,7 +245,8 @@ export function initSketchbook() {
   /** Left page: the render, laid on the sheet like a print with a deckle border. */
   function drawImagePage(img, i) {
     const c = document.createElement('canvas');
-    c.width = PAGE_W; c.height = PAGE_H;
+    c.width = PAGE_W;
+    c.height = PAGE_H;
     const ctx = c.getContext('2d');
     paperBase(ctx, 'right');
 
@@ -299,7 +303,8 @@ export function initSketchbook() {
   function drawTextPage(i) {
     const s = SPREADS[i];
     const c = document.createElement('canvas');
-    c.width = PAGE_W; c.height = PAGE_H;
+    c.width = PAGE_W;
+    c.height = PAGE_H;
     const ctx = c.getContext('2d');
     paperBase(ctx, 'left');
 
@@ -441,8 +446,8 @@ export function initSketchbook() {
     for (let i = 0; i < N; i++) {
       const s = el('div', 'strip');
       s.style.setProperty('--i', i);
-      const A = `calc(-1 * (${i} * ${sw}))`;          // faces the from-page
-      const B = `calc(${i + 1} * ${sw} - ${pw})`;     // faces the to-page
+      const A = `calc(-1 * (${i} * ${sw}))`; // faces the from-page
+      const B = `calc(${i + 1} * ${sw} - ${pw})`; // faces the to-page
       const f = el('div', 'face front');
       const b = el('div', 'face back');
       const dress = (e, url, px) => {
@@ -452,18 +457,22 @@ export function initSketchbook() {
       const next = dir === 'next';
       dress(f, PAGES[from][next ? 'right' : 'left'], next ? A : B);
       dress(b, PAGES[to][next ? 'left' : 'right'], next ? B : A);
-      f.appendChild(el('div', 'sh')); f.appendChild(el('div', 'gl'));
-      b.appendChild(el('div', 'sh')); b.appendChild(el('div', 'gl'));
-      s.appendChild(f); s.appendChild(b);
+      f.appendChild(el('div', 'sh'));
+      f.appendChild(el('div', 'gl'));
+      b.appendChild(el('div', 'sh'));
+      b.appendChild(el('div', 'gl'));
+      s.appendChild(f);
+      s.appendChild(b);
       if (i === N - 1) s.classList.add('edge');
-      host.appendChild(s); host = s;
+      host.appendChild(s);
+      host = s;
       strips.push(s);
     }
     return c;
   }
 
   function applyTurn(t) {
-    const th = Math.PI * t;                    // how far the leaf has swung
+    const th = Math.PI * t; // how far the leaf has swung
     const beta = BETA * Math.sin(Math.PI * t); // it is flat at both ends
     const D = 180 / Math.PI;
     const tt = th + beta;
@@ -473,8 +482,8 @@ export function initSketchbook() {
     sb3d.style.setProperty('--shade', Math.sin(Math.PI * t).toFixed(3));
     fadeCaption(t);
     for (let i = 0; i < strips.length; i++) {
-      const l1 = Math.abs(Math.cos(tt - i * td));         // facing, near edge
-      const l2 = Math.abs(Math.cos(tt - (i + 1) * td));   // ...and far edge
+      const l1 = Math.abs(Math.cos(tt - i * td)); // facing, near edge
+      const l2 = Math.abs(Math.cos(tt - (i + 1) * td)); // ...and far edge
       const st = strips[i].style;
       st.setProperty('--lit', l1.toFixed(3));
       st.setProperty('--a1', ((1 - l1) * 0.62).toFixed(3));
@@ -501,7 +510,8 @@ export function initSketchbook() {
     a.type = b.type = 'button';
     a.setAttribute('aria-label', 'previous page');
     b.setAttribute('aria-label', 'next page');
-    book.appendChild(a); book.appendChild(b);
+    book.appendChild(a);
+    book.appendChild(b);
     stackDepth();
     layout();
     // The opening riffle flicks through every spread in well under a second —
@@ -520,7 +530,8 @@ export function initSketchbook() {
 
   /* ── Captions ───────────────────────────────────────────────────────── */
 
-  let capOut = null, capIn = null;
+  let capOut = null,
+    capIn = null;
 
   function caption() {
     capBox.textContent = '';
@@ -550,12 +561,16 @@ export function initSketchbook() {
     capIn.style.opacity = inn.toFixed(3);
   }
 
-  function layout() { sb3d.style.setProperty('--bw', `${book.clientWidth}px`); }
+  function layout() {
+    sb3d.style.setProperty('--bw', `${book.clientWidth}px`);
+  }
   addEventListener('resize', layout);
 
   /* ── Spring loop ────────────────────────────────────────────────────── */
 
-  let spring = null, raf = null, last = 0;
+  let spring = null,
+    raf = null,
+    last = 0;
 
   function animateTo(target, onDone, stiff, damp) {
     spring = { kind: 'spring', v: 0, target, done: onDone, k: stiff || 150, c: damp || 22 };
@@ -566,7 +581,12 @@ export function initSketchbook() {
     spring = { kind: 'tween', from: turn ? turn.t : 0, target, dur, e: 0, done: onDone };
     kick();
   }
-  function kick() { if (raf === null) { last = performance.now(); raf = requestAnimationFrame(tick); } }
+  function kick() {
+    if (raf === null) {
+      last = performance.now();
+      raf = requestAnimationFrame(tick);
+    }
+  }
 
   function tick(now) {
     raf = null;
@@ -579,13 +599,17 @@ export function initSketchbook() {
         const k = Math.min(1, s.e / s.dur);
         turn.t = s.from + (s.target - s.from) * k;
         applyTurn(turn.t);
-        if (k >= 1) { spring = null; s.done?.(); }
+        if (k >= 1) {
+          spring = null;
+          s.done?.();
+        }
       } else {
         const x = turn.t - s.target;
         s.v += (-s.k * x - s.c * s.v) * dt;
         turn.t += s.v * dt;
         if (Math.abs(turn.t - s.target) < 0.002 && Math.abs(s.v) < 0.02) {
-          turn.t = s.target; spring = null;
+          turn.t = s.target;
+          spring = null;
           applyTurn(turn.t);
           s.done?.();
         } else applyTurn(turn.t);
@@ -599,9 +623,9 @@ export function initSketchbook() {
 
   /* ── Tilt + zoom of the book ────────────────────────────────────────── */
 
-  const view = { rx: 0, ry: 0, z: 1, ox: 0, oy: 0,
-                 trx: 0, try_: 0, tz: 1, tox: 0, toy: 0 };
-  let viewActive = false, lastZ = 1;
+  const view = { rx: 0, ry: 0, z: 1, ox: 0, oy: 0, trx: 0, try_: 0, tz: 1, tox: 0, toy: 0 };
+  let viewActive = false,
+    lastZ = 1;
 
   function applyView() {
     sb3d.style.setProperty('--rx', `${view.rx.toFixed(2)}deg`);
@@ -609,19 +633,28 @@ export function initSketchbook() {
     sb3d.style.setProperty('--zoom', view.z.toFixed(3));
     /* The vanishing point moves with the cursor, so the layers behind the
        page — sheets, board, base — slide against it. */
-    sb3d.style.perspectiveOrigin =
-      `${(50 + view.ox).toFixed(2)}% ${(46 + view.oy).toFixed(2)}%`;
+    sb3d.style.perspectiveOrigin = `${(50 + view.ox).toFixed(2)}% ${(46 + view.oy).toFixed(2)}%`;
     // The glass stays put, but the page under it has moved.
-    if (view.z !== lastZ) { lastZ = view.z; placeLoupe(); }
+    if (view.z !== lastZ) {
+      lastZ = view.z;
+      placeLoupe();
+    }
   }
   function viewSpring() {
     const e = 0.14;
     let moved = false;
-    for (const [k, t] of [['rx', 'trx'], ['ry', 'try_'], ['z', 'tz'],
-                          ['ox', 'tox'], ['oy', 'toy']]) {
+    for (const [k, t] of [
+      ['rx', 'trx'],
+      ['ry', 'try_'],
+      ['z', 'tz'],
+      ['ox', 'tox'],
+      ['oy', 'toy'],
+    ]) {
       const d = view[t] - view[k];
-      if (Math.abs(d) > 0.0006) { view[k] += d * e; moved = true; }
-      else view[k] = view[t];
+      if (Math.abs(d) > 0.0006) {
+        view[k] += d * e;
+        moved = true;
+      } else view[k] = view[t];
     }
     if (moved) applyView();
     viewActive = moved;
@@ -631,7 +664,8 @@ export function initSketchbook() {
     view.trx = Math.max(-TILT_X, Math.min(TILT_X, rx));
     view.try_ = Math.max(-TILT_Y, Math.min(TILT_Y, ry));
     view.tz = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, z));
-    viewActive = true; kick();
+    viewActive = true;
+    kick();
     syncZoom();
   }
   /* The book leans toward the cursor — no dragging, and never far. */
@@ -647,17 +681,26 @@ export function initSketchbook() {
   function setOrigin(ox, oy) {
     view.tox = Math.max(-ORIGIN_X, Math.min(ORIGIN_X, ox));
     view.toy = Math.max(-ORIGIN_Y, Math.min(ORIGIN_Y, oy));
-    viewActive = true; kick();
+    viewActive = true;
+    kick();
   }
-  addEventListener('pointermove', (e) => {
-    if (e.pointerType === 'touch') return;
-    tiltTo(e.clientX, e.clientY);
-  }, { passive: true });
+  addEventListener(
+    'pointermove',
+    (e) => {
+      if (e.pointerType === 'touch') return;
+      tiltTo(e.clientX, e.clientY);
+    },
+    { passive: true }
+  );
   addEventListener('pointerout', (e) => {
     if (e.relatedTarget) return;
-    setView(0, 0, view.tz); setOrigin(0, 0);
+    setView(0, 0, view.tz);
+    setOrigin(0, 0);
   });
-  addEventListener('blur', () => { setView(0, 0, view.tz); setOrigin(0, 0); });
+  addEventListener('blur', () => {
+    setView(0, 0, view.tz);
+    setOrigin(0, 0);
+  });
   // The wheel belongs to the page — zoom is on the toolbar, or a double click
   // to come back to 100%.
   stage.addEventListener('dblclick', () => setView(view.trx, view.try_, 1));
@@ -670,17 +713,26 @@ export function initSketchbook() {
 
   stage.addEventListener('pointerdown', (e) => {
     if (e.button !== 0 || !ready) return;
-    const onBook = e.target.closest('.sb-zone');
+    const onBook = /** @type {Element} */ (e.target).closest('.sb-zone');
     if (!onBook || introOn) return;
     e.preventDefault(); // no text selection, no image drag
-    try { stage.setPointerCapture(e.pointerId); } catch { /* pointer already gone */ }
+    try {
+      stage.setPointerCapture(e.pointerId);
+    } catch {
+      /* pointer already gone */
+    }
     hideHint();
     const r = bookRect();
     const dir = (e.clientX - r.left) / r.width > 0.5 ? 'next' : 'prev';
     startTurn(dir, 0);
     drag = {
-      dir, x0: e.clientX, w: r.width, moved: 0, vel: 0,
-      t0: turn ? turn.t : 0, tPrev: performance.now(),
+      dir,
+      x0: e.clientX,
+      w: r.width,
+      moved: 0,
+      vel: 0,
+      t0: turn ? turn.t : 0,
+      tPrev: performance.now(),
     };
   });
   stage.addEventListener('pointermove', (e) => {
@@ -692,14 +744,22 @@ export function initSketchbook() {
     const now = performance.now();
     drag.vel = (t - (turn ? turn.t : 0)) / Math.max(0.001, (now - drag.tPrev) / 1000);
     drag.tPrev = now;
-    if (turn) { turn.t = t; applyTurn(t); }
+    if (turn) {
+      turn.t = t;
+      applyTurn(t);
+    }
   });
   function endDrag() {
     if (!drag) return;
-    const d = drag; drag = null;
+    const d = drag;
+    drag = null;
     if (!turn) return;
-    if (d.moved < 6) { commit(); return; } // a tap, not a drag
-    if (turn.t > 0.42 || d.vel > 1.1) commit(); else cancel();
+    if (d.moved < 6) {
+      commit();
+      return;
+    } // a tap, not a drag
+    if (turn.t > 0.42 || d.vel > 1.1) commit();
+    else cancel();
   }
   stage.addEventListener('dragstart', (e) => e.preventDefault());
   stage.addEventListener('selectstart', (e) => e.preventDefault());
@@ -710,7 +770,10 @@ export function initSketchbook() {
 
   function startTurn(dir, t) {
     spring = null;
-    if (turn) { idx = turn.to; turn = null; } // settle anything still in flight
+    if (turn) {
+      idx = turn.to;
+      turn = null;
+    } // settle anything still in flight
     shoveLoupe(dir);
     const from = idx;
     turn = { dir, from, to: dir === 'next' ? (from + 1) % M : (from - 1 + M) % M, t: t || 0 };
@@ -718,39 +781,57 @@ export function initSketchbook() {
   }
   function commit() {
     if (!turn) return;
-    if (REDUCED) { idx = turn.to; turn = null; paint(); return; }
-    animateTo(1, () => { idx = turn.to; turn = null; paint(); }, 170, 26);
+    if (REDUCED) {
+      idx = turn.to;
+      turn = null;
+      paint();
+      return;
+    }
+    animateTo(
+      1,
+      () => {
+        idx = turn.to;
+        turn = null;
+        paint();
+      },
+      170,
+      26
+    );
     kick();
   }
   function cancel() {
     if (!turn) return;
-    animateTo(0, () => { turn = null; paint(); }, 150, 24);
+    animateTo(
+      0,
+      () => {
+        turn = null;
+        paint();
+      },
+      150,
+      24
+    );
     kick();
   }
   function step(dir) {
     if (!ready) return;
     if (introOn) endIntro();
-    if (turn) { idx = turn.to; turn = null; } // finish whatever is in flight
-    startTurn(dir, 0); commit();
-  }
-  function goTo(i) {
-    if (!ready) return;
-    if (introOn) endIntro();
-    if (i === idx) return;
-    if (turn) { idx = turn.to; turn = null; }
-    const fwd = (i - idx + M) % M, back = (idx - i + M) % M;
-    if (Math.min(fwd, back) === 1) { step(fwd === 1 ? 'next' : 'prev'); return; }
-    idx = i; paint();
+    if (turn) {
+      idx = turn.to;
+      turn = null;
+    } // finish whatever is in flight
+    startTurn(dir, 0);
+    commit();
   }
   addEventListener('keydown', (e) => {
     if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
     if (e.metaKey || e.ctrlKey || e.altKey) return;
-    const t = e.target;
+    const t = /** @type {HTMLElement|null} */ (e.target);
     if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
     // Only while the book is actually the thing on screen.
     const r = wrap.getBoundingClientRect();
     if (r.bottom < 0 || r.top > innerHeight) return;
-    e.preventDefault(); hideHint();
+    e.preventDefault();
+    hideHint();
     step(e.key === 'ArrowRight' ? 'next' : 'prev');
   });
 
@@ -761,18 +842,23 @@ export function initSketchbook() {
   const zoomWrap = document.getElementById('zoomWrap');
   const zoomInner = document.getElementById('zoomInner');
   // Opt-in: the glass only appears once the reader asks for it.
-  let loupeOn = false, lx = null, ly = null, lgrab = null, lTarget = null;
+  let loupeOn = false,
+    lx = null,
+    ly = null,
+    lgrab = null,
+    lTarget = null;
 
   /* Height matters as much as width now the book is a wide, low album: sizing
      off the width alone gives a glass taller than the page it sits on. */
-  const loupeSize = () => Math.round(Math.max(140, Math.min(
-    240, book.clientWidth * 0.235, book.clientHeight * 0.42)));
+  const loupeSize = () =>
+    Math.round(Math.max(140, Math.min(240, book.clientWidth * 0.235, book.clientHeight * 0.42)));
   const bookBox = () => ({ x: 0, y: 0, w: book.clientWidth, h: book.clientHeight });
 
   /* Park it at the lower right, half off the book. */
   function restLoupe() {
     const b = bookBox();
-    lx = b.x + b.w * 0.86; ly = b.y + b.h * 0.74;
+    lx = b.x + b.w * 0.86;
+    ly = b.y + b.h * 0.74;
     placeLoupe();
   }
   /* Mirror whatever the book is currently showing into the magnified copy. */
@@ -789,25 +875,33 @@ export function initSketchbook() {
      correct for: the book is drawn about its own centre. */
   function placeLoupe() {
     if (lx === null) return;
-    const B = bookBox(), bw = B.w, bh = B.h;
+    const B = bookBox(),
+      bw = B.w,
+      bh = B.h;
     if (!bw) return;
-    const R = loupeSize() / 2, bez = R * 2 * 0.058;
+    const R = loupeSize() / 2,
+      bez = R * 2 * 0.058;
     loupe.style.setProperty('--lr', `${R * 2}px`);
     loupe.style.transform = `translate3d(${(lx - R).toFixed(1)}px,${(ly - R).toFixed(1)}px,0)`;
     loupe.classList.toggle('on', loupeOn);
 
     // Where the paper's edges land once the book is scaled.
-    const z = view.z, cx = bw / 2, cy = bh / 2;
-    const x0 = cx + (0 - cx) * z, x1 = cx + (bw - cx) * z;
-    const y0 = cy + (0 - cy) * z, y1 = cy + (bh - cy) * z;
+    const z = view.z,
+      cx = bw / 2,
+      cy = bh / 2;
+    const x0 = cx + (0 - cx) * z,
+      x1 = cx + (bw - cx) * z;
+    const y0 = cy + (0 - cy) * z,
+      y1 = cy + (bh - cy) * z;
     /* How far the glass's own centre is inside the paper. The copy fades out
        as it wanders off the sheet, so you are left looking through plain
        glass rather than at a sliver of page floating on the desk. */
     const nx = Math.max(x0, Math.min(lx, x1));
     const ny = Math.max(y0, Math.min(ly, y1));
-    const inside = (lx > x0 && lx < x1 && ly > y0 && ly < y1)
-      ? Math.min(lx - x0, x1 - lx, ly - y0, y1 - ly)
-      : -Math.hypot(lx - nx, ly - ny);
+    const inside =
+      lx > x0 && lx < x1 && ly > y0 && ly < y1
+        ? Math.min(lx - x0, x1 - lx, ly - y0, y1 - ly)
+        : -Math.hypot(lx - nx, ly - ny);
     const k = Math.max(0, Math.min(1, (inside + R * 0.3) / (R * 0.55)));
 
     zoomWrap.style.opacity = (loupeOn ? k : 0).toFixed(3);
@@ -818,9 +912,10 @@ export function initSketchbook() {
     zoomWrap.style.maskImage = mask;
     /* The page point beneath the glass, magnified about that same spot so the
        lens keeps showing MAG times whatever is on screen. */
-    const px = cx + (lx - cx) / z, py = cy + (ly - cy) / z, s = MAG * z;
-    zoomInner.style.transform =
-      `translate(${(lx - px * s).toFixed(1)}px,${(ly - py * s).toFixed(1)}px) scale(${s.toFixed(4)})`;
+    const px = cx + (lx - cx) / z,
+      py = cy + (ly - cy) / z,
+      s = MAG * z;
+    zoomInner.style.transform = `translate(${(lx - px * s).toFixed(1)}px,${(ly - py * s).toFixed(1)}px) scale(${s.toFixed(4)})`;
   }
   /* The leaf shoves the glass aside as it sweeps past. */
   function shoveLoupe(dir) {
@@ -834,32 +929,51 @@ export function initSketchbook() {
   }
   function loupeEase() {
     if (!lTarget) return false;
-    if (lgrab) { lTarget = null; return false; }
-    const dx = lTarget.x - lx, dy = lTarget.y - ly;
-    if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) {
-      lx = lTarget.x; ly = lTarget.y; lTarget = null; placeLoupe(); return false;
+    if (lgrab) {
+      lTarget = null;
+      return false;
     }
-    lx += dx * 0.17; ly += dy * 0.17; placeLoupe();
+    const dx = lTarget.x - lx,
+      dy = lTarget.y - ly;
+    if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) {
+      lx = lTarget.x;
+      ly = lTarget.y;
+      lTarget = null;
+      placeLoupe();
+      return false;
+    }
+    lx += dx * 0.17;
+    ly += dy * 0.17;
+    placeLoupe();
     return true;
   }
   loupe.addEventListener('pointerdown', (e) => {
     if (!loupeOn || e.button !== 0) return;
-    e.preventDefault(); e.stopPropagation(); // never starts a page turn
+    e.preventDefault();
+    e.stopPropagation(); // never starts a page turn
     lTarget = null;
     lgrab = { cx: e.clientX, cy: e.clientY, lx0: lx, ly0: ly };
     loupe.classList.add('held');
-    try { loupe.setPointerCapture(e.pointerId); } catch { /* pointer already gone */ }
+    try {
+      loupe.setPointerCapture(e.pointerId);
+    } catch {
+      /* pointer already gone */
+    }
     hideHint();
   });
   loupe.addEventListener('pointermove', (e) => {
     if (!lgrab) return;
-    const b = bookBox(), R = loupeSize() / 2;
+    const b = bookBox(),
+      R = loupeSize() / 2;
     // The glass carries none of the book's transform, so the cursor maps 1:1.
     lx = Math.max(b.x - R * 0.7, Math.min(b.x + b.w + R * 0.7, lgrab.lx0 + (e.clientX - lgrab.cx)));
     ly = Math.max(b.y - R * 0.7, Math.min(b.y + b.h + R * 1.0, lgrab.ly0 + (e.clientY - lgrab.cy)));
     placeLoupe();
   });
-  const dropLoupe = () => { lgrab = null; loupe.classList.remove('held'); };
+  const dropLoupe = () => {
+    lgrab = null;
+    loupe.classList.remove('held');
+  };
   loupe.addEventListener('pointerup', dropLoupe);
   loupe.addEventListener('pointercancel', dropLoupe);
   loupeBtn.onclick = () => {
@@ -870,7 +984,10 @@ export function initSketchbook() {
     if (!loupeOn) zoomWrap.style.opacity = '0';
     hideHint();
   };
-  addEventListener('resize', () => { lx = null; restLoupe(); });
+  addEventListener('resize', () => {
+    lx = null;
+    restLoupe();
+  });
 
   /* The zoom read-out and the plate index are gone from the toolbar — the
      album is navigated by its pages and its arrows. setView still runs: it is
@@ -880,33 +997,52 @@ export function initSketchbook() {
 
   /* ── The riffle ─────────────────────────────────────────────────────── */
 
-  let riffle = null, riffleAt = 0, introOn = false, introDone = false, pendingIntro = false;
+  let riffle = null,
+    riffleAt = 0,
+    introOn = false,
+    introDone = false,
+    pendingIntro = false;
 
-  function endIntro() { introOn = false; wrap.classList.remove('intro', 'b2'); }
+  function endIntro() {
+    introOn = false;
+    wrap.classList.remove('intro', 'b2');
+  }
 
   function riffleStep() {
     const s = riffle[riffleAt];
     wrap.classList.toggle('b2', s.bell > 0.55);
     startTurn('next', 0);
     tweenTo(1, s.dur, () => {
-      idx = turn.to; turn = null;
+      idx = turn.to;
+      turn = null;
       riffleAt++;
-      if (introOn && riffleAt < riffle.length) { paint(); riffleStep(); }
-      else { endIntro(); paint(); }
+      if (introOn && riffleAt < riffle.length) {
+        paint();
+        riffleStep();
+      } else {
+        endIntro();
+        paint();
+      }
     });
   }
   function startIntro() {
     if (introDone || !ready) return;
     introDone = true;
     const coarse = matchMedia('(max-width: 640px), (pointer: coarse)').matches;
-    if (coarse || REDUCED) { idx = LAND; paint(); return; }
+    if (coarse || REDUCED) {
+      idx = LAND;
+      paint();
+      return;
+    }
     const steps = M + LAND;
     riffle = [];
     for (let r = 0; r < steps; r++) {
       const bell = Math.sin(Math.PI * (r / (steps - 1)));
       riffle.push({ bell, dur: 0.17 - 0.12 * bell });
     }
-    riffleAt = 0; introOn = true; wrap.classList.add('intro');
+    riffleAt = 0;
+    introOn = true;
+    wrap.classList.add('intro');
     riffleStep();
   }
 
@@ -917,11 +1053,15 @@ export function initSketchbook() {
      stops the loop rather than letting it tick for the whole scroll
      stretch the book is pinned across. */
   (function initDust() {
-    const canvas = document.getElementById('sbMotes');
+    const canvas = /** @type {HTMLCanvasElement|null} */ (document.getElementById('sbMotes'));
     if (!canvas || REDUCED) return;
     const ctx = canvas.getContext('2d');
     const DPR = Math.min(2, window.devicePixelRatio || 1);
-    let w = 0, h = 0, motes = [], raf2 = null, running = false;
+    let w = 0,
+      h = 0,
+      motes = [],
+      raf2 = null,
+      running = false;
 
     const COUNT = 46;
     function seed() {
@@ -929,7 +1069,7 @@ export function initSketchbook() {
         x: Math.random() * w,
         y: Math.random() * h,
         r: 0.6 + Math.random() * 1.4,
-        s: 0.06 + Math.random() * 0.16,     // rise speed, px/frame at 60fps
+        s: 0.06 + Math.random() * 0.16, // rise speed, px/frame at 60fps
         drift: (Math.random() - 0.5) * 0.05,
         a: 0.08 + Math.random() * 0.22,
         warm: Math.random() > 0.5,
@@ -937,7 +1077,8 @@ export function initSketchbook() {
     }
     function resize() {
       const r = canvas.getBoundingClientRect();
-      w = r.width; h = r.height;
+      w = r.width;
+      h = r.height;
       canvas.width = Math.round(w * DPR);
       canvas.height = Math.round(h * DPR);
       ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
@@ -947,9 +1088,14 @@ export function initSketchbook() {
       if (!running) return;
       ctx.clearRect(0, 0, w, h);
       for (const m of motes) {
-        m.y -= m.s; m.x += m.drift;
-        if (m.y < -4) { m.y = h + 4; m.x = Math.random() * w; }
-        if (m.x < -4) m.x = w + 4; else if (m.x > w + 4) m.x = -4;
+        m.y -= m.s;
+        m.x += m.drift;
+        if (m.y < -4) {
+          m.y = h + 4;
+          m.x = Math.random() * w;
+        }
+        if (m.x < -4) m.x = w + 4;
+        else if (m.x > w + 4) m.x = -4;
         ctx.beginPath();
         ctx.fillStyle = m.warm ? `rgba(222,71,88,${m.a})` : `rgba(244,244,246,${m.a})`;
         ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2);
@@ -957,12 +1103,26 @@ export function initSketchbook() {
       }
       raf2 = requestAnimationFrame(frame);
     }
-    function start() { if (running) return; running = true; resize(); raf2 = requestAnimationFrame(frame); }
-    function stop() { running = false; if (raf2) cancelAnimationFrame(raf2); }
+    function start() {
+      if (running) return;
+      running = true;
+      resize();
+      raf2 = requestAnimationFrame(frame);
+    }
+    function stop() {
+      running = false;
+      if (raf2) cancelAnimationFrame(raf2);
+    }
 
-    new IntersectionObserver(([e]) => { e.isIntersecting ? start() : stop(); },
-      { threshold: 0.01 }).observe(document.getElementById('sketchbook'));
-    addEventListener('resize', () => { if (running) resize(); });
+    new IntersectionObserver(
+      ([e]) => {
+        e.isIntersecting ? start() : stop();
+      },
+      { threshold: 0.01 }
+    ).observe(document.getElementById('sketchbook'));
+    addEventListener('resize', () => {
+      if (running) resize();
+    });
   })();
 
   // The book flicks itself through once, timed to start the moment the

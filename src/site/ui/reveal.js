@@ -25,7 +25,7 @@ export function initReveal(root = document) {
  * that one glass pill — nowhere else on the page spawns these.
  */
 export function initScrollRipple() {
-  const el = document.querySelector('.hero__scroll');
+  const el = /** @type {HTMLElement|null} */ (document.querySelector('.hero__scroll'));
   if (!el) return;
 
   let lastSpawn = 0;
@@ -46,7 +46,7 @@ export function initScrollRipple() {
 
 /** Counts the "40+" badge up from 0 once its <b> becomes visible. */
 function startBadgeCount() {
-  const el = document.querySelector('.badge-count');
+  const el = /** @type {HTMLElement|null} */ (document.querySelector('.badge-count'));
   if (!el) return;
   const to = Number(el.dataset.countTo) || 0;
   const counter = { v: 0 };
@@ -54,7 +54,9 @@ function startBadgeCount() {
     v: to,
     duration: 1.1,
     ease: 'power2.out',
-    onUpdate: () => { el.textContent = Math.round(counter.v); },
+    onUpdate: () => {
+      el.textContent = String(Math.round(counter.v));
+    },
   });
 }
 
@@ -117,15 +119,30 @@ export function revealHero() {
   // and settles, which reads as a mechanical snap rather than a plain fade.
   gsap.set('.hero__title .line', { letterSpacing: '0.4em' });
   tl.to('.hero__title .line', { autoAlpha: 1, y: 0, duration: 1.05, stagger: 0.11 })
-    .to('.hero__title .line', {
-      letterSpacing: '-0.04em', duration: 1.0, stagger: 0.11, ease: 'back.out(1.6)',
-    }, '<')
+    .to(
+      '.hero__title .line',
+      {
+        letterSpacing: '-0.04em',
+        duration: 1.0,
+        stagger: 0.11,
+        ease: 'back.out(1.6)',
+      },
+      '<'
+    )
     .to('.hero .lede', { autoAlpha: 1, y: 0, duration: 0.9 }, '-=0.7')
     // Badges tick in one at a time rather than as one block; the "40+" count
     // starts the instant its own <b> begins revealing.
-    .to('.hero__badges > *', {
-      autoAlpha: 1, y: 0, duration: 0.75, stagger: 0.12, onStart: startBadgeCount,
-    }, '-=0.62')
+    .to(
+      '.hero__badges > *',
+      {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.75,
+        stagger: 0.12,
+        onStart: startBadgeCount,
+      },
+      '-=0.62'
+    )
     .to('.hero__scroll', { autoAlpha: 1, y: 0, duration: 0.8 }, '-=0.5')
     .from('.masthead', { autoAlpha: 0, y: -18, duration: 0.9 }, '-=1.0');
   return tl;

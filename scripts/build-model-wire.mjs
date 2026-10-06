@@ -40,10 +40,10 @@ const SRC = process.argv[2]
 const OUT_DIR = path.join(ROOT, 'public', 'assets', 'model');
 const NAME = 'house-wire';
 
-const ANGLE_DEG = 32;           // crease threshold; lower keeps more edges
-const TARGET_SEGMENTS = 13000;  // final count, longest-first
-const TARGET_HEIGHT = 9.6;      // metres, to frame like the old procedural house
-const WELD_TOLERANCE = 1e-4;    // fraction of the bounding diagonal
+const ANGLE_DEG = 32; // crease threshold; lower keeps more edges
+const TARGET_SEGMENTS = 13000; // final count, longest-first
+const TARGET_HEIGHT = 9.6; // metres, to frame like the old procedural house
+const WELD_TOLERANCE = 1e-4; // fraction of the bounding diagonal
 
 /**
  * World-space X cutoff isolating the "FINAL" house from the props scatter and
@@ -65,7 +65,17 @@ const PART_PHASES = [
   { name: 'walls', materials: ['wall_panels', 'wall_plaster', 'wall_planks'] },
   { name: 'framing', materials: ['beams_patterns', 'beams_dougong', 'trims_wood', 'trims_metal'] },
   { name: 'roof', materials: ['roof_A', 'roof_B'] },
-  { name: 'mechanical', materials: ['house_B_pipes', 'house_c_pipes', 'house_F_pipes', 'pipes_low', 'steam_control_system', 'metal_fittings'] },
+  {
+    name: 'mechanical',
+    materials: [
+      'house_B_pipes',
+      'house_c_pipes',
+      'house_F_pipes',
+      'pipes_low',
+      'steam_control_system',
+      'metal_fittings',
+    ],
+  },
   { name: 'props', materials: ['props_A', 'props_B'] },
 ];
 const PHASE_OF_MATERIAL = new Map();
@@ -84,8 +94,12 @@ function materialName(meshName) {
 /* ── glTF plumbing ─────────────────────────────────────────────────────── */
 
 const COMPONENT = {
-  5120: Int8Array, 5121: Uint8Array, 5122: Int16Array,
-  5123: Uint16Array, 5125: Uint32Array, 5126: Float32Array,
+  5120: Int8Array,
+  5121: Uint8Array,
+  5122: Int16Array,
+  5123: Uint16Array,
+  5125: Uint32Array,
+  5126: Float32Array,
 };
 const NUM_COMPONENTS = { SCALAR: 1, VEC2: 2, VEC3: 3, VEC4: 4, MAT4: 16 };
 
@@ -164,16 +178,36 @@ function composeTRS(node) {
   const [qx, qy, qz, qw] = node.rotation || [0, 0, 0, 1];
   const [sx, sy, sz] = node.scale || [1, 1, 1];
 
-  const x2 = qx + qx, y2 = qy + qy, z2 = qz + qz;
-  const xx = qx * x2, xy = qx * y2, xz = qx * z2;
-  const yy = qy * y2, yz = qy * z2, zz = qz * z2;
-  const wx = qw * x2, wy = qw * y2, wz = qw * z2;
+  const x2 = qx + qx,
+    y2 = qy + qy,
+    z2 = qz + qz;
+  const xx = qx * x2,
+    xy = qx * y2,
+    xz = qx * z2;
+  const yy = qy * y2,
+    yz = qy * z2,
+    zz = qz * z2;
+  const wx = qw * x2,
+    wy = qw * y2,
+    wz = qw * z2;
 
   return [
-    (1 - (yy + zz)) * sx, (xy + wz) * sx, (xz - wy) * sx, 0,
-    (xy - wz) * sy, (1 - (xx + zz)) * sy, (yz + wx) * sy, 0,
-    (xz + wy) * sz, (yz - wx) * sz, (1 - (xx + yy)) * sz, 0,
-    tx, ty, tz, 1,
+    (1 - (yy + zz)) * sx,
+    (xy + wz) * sx,
+    (xz - wy) * sx,
+    0,
+    (xy - wz) * sy,
+    (1 - (xx + zz)) * sy,
+    (yz + wx) * sy,
+    0,
+    (xz + wy) * sz,
+    (yz - wx) * sz,
+    (1 - (xx + yy)) * sz,
+    0,
+    tx,
+    ty,
+    tz,
+    1,
   ];
 }
 
@@ -210,37 +244,47 @@ function collectTriangles(gltf, bin, regionMinX) {
       const material = materialName(mesh.name);
 
       if (!EXCLUDED_MATERIALS.has(material)) {
-      const phase = PHASE_OF_MATERIAL.get(material) ?? DEFAULT_PHASE;
+        const phase = PHASE_OF_MATERIAL.get(material) ?? DEFAULT_PHASE;
 
-      for (const prim of mesh.primitives) {
-        if ((prim.mode ?? 4) !== 4) continue;            // triangles only
-        if (prim.attributes?.POSITION == null) continue;
+        for (const prim of mesh.primitives) {
+          if ((prim.mode ?? 4) !== 4) continue; // triangles only
+          if (prim.attributes?.POSITION == null) continue;
 
-        const pos = readAccessor(gltf, bin, prim.attributes.POSITION);
-        const world3 = new Float32Array(pos.length);
-        for (let i = 0; i < pos.length; i += 3) {
-          const p = applyMatrix(world, pos[i], pos[i + 1], pos[i + 2]);
-          world3[i] = p[0]; world3[i + 1] = p[1]; world3[i + 2] = p[2];
+          const pos = readAccessor(gltf, bin, prim.attributes.POSITION);
+          const world3 = new Float32Array(pos.length);
+          for (let i = 0; i < pos.length; i += 3) {
+            const p = applyMatrix(world, pos[i], pos[i + 1], pos[i + 2]);
+            world3[i] = p[0];
+            world3[i + 1] = p[1];
+            world3[i + 2] = p[2];
+          }
+
+          const idx = prim.indices != null ? readAccessor(gltf, bin, prim.indices) : null;
+          const count = idx ? idx.length : pos.length / 3;
+
+          for (let i = 0; i < count; i += 3) {
+            const a = idx ? idx[i] : i,
+              b = idx ? idx[i + 1] : i + 1,
+              c = idx ? idx[i + 2] : i + 2;
+            const cx = (world3[a * 3] + world3[b * 3] + world3[c * 3]) / 3;
+            if (cx < regionMinX) continue;
+
+            const offset = positions.length / 3;
+            positions.push(
+              world3[a * 3],
+              world3[a * 3 + 1],
+              world3[a * 3 + 2],
+              world3[b * 3],
+              world3[b * 3 + 1],
+              world3[b * 3 + 2],
+              world3[c * 3],
+              world3[c * 3 + 1],
+              world3[c * 3 + 2]
+            );
+            indices.push(offset, offset + 1, offset + 2);
+            triPhase.push(phase);
+          }
         }
-
-        const idx = prim.indices != null ? readAccessor(gltf, bin, prim.indices) : null;
-        const count = idx ? idx.length : pos.length / 3;
-
-        for (let i = 0; i < count; i += 3) {
-          const a = idx ? idx[i] : i, b = idx ? idx[i + 1] : i + 1, c = idx ? idx[i + 2] : i + 2;
-          const cx = (world3[a * 3] + world3[b * 3] + world3[c * 3]) / 3;
-          if (cx < regionMinX) continue;
-
-          const offset = positions.length / 3;
-          positions.push(
-            world3[a * 3], world3[a * 3 + 1], world3[a * 3 + 2],
-            world3[b * 3], world3[b * 3 + 1], world3[b * 3 + 2],
-            world3[c * 3], world3[c * 3 + 1], world3[c * 3 + 2]
-          );
-          indices.push(offset, offset + 1, offset + 2);
-          triPhase.push(phase);
-        }
-      }
       }
     }
 
@@ -265,8 +309,10 @@ function weld(positions, indices, tolerance) {
 
   for (let i = 0; i < positions.length; i += 3) {
     const key =
-      Math.round(positions[i] / tolerance) + '|' +
-      Math.round(positions[i + 1] / tolerance) + '|' +
+      Math.round(positions[i] / tolerance) +
+      '|' +
+      Math.round(positions[i + 1] / tolerance) +
+      '|' +
       Math.round(positions[i + 2] / tolerance);
 
     let at = map.get(key);
@@ -296,15 +342,19 @@ function featureEdges(positions, indices, angleDeg, triPhase) {
   const stride = positions.length / 3 + 1; // room to pack (lo, hi) into one number
 
   const firstNormal = new Map(); // edge key -> normal of its first face
-  const edgePhase = new Map();   // edge key -> phase of its first face
+  const edgePhase = new Map(); // edge key -> phase of its first face
   const creased = new Set();
   const smooth = new Set();
 
   for (let t = 0; t < indices.length; t += 3) {
-    const a = indices[t], b = indices[t + 1], c = indices[t + 2];
+    const a = indices[t],
+      b = indices[t + 1],
+      c = indices[t + 2];
     if (a === b || b === c || a === c) continue;
 
-    const ax = positions[a * 3], ay = positions[a * 3 + 1], az = positions[a * 3 + 2];
+    const ax = positions[a * 3],
+      ay = positions[a * 3 + 1],
+      az = positions[a * 3 + 2];
     const e1x = positions[b * 3] - ax;
     const e1y = positions[b * 3 + 1] - ay;
     const e1z = positions[b * 3 + 2] - az;
@@ -317,7 +367,9 @@ function featureEdges(positions, indices, angleDeg, triPhase) {
     let nz = e1x * e2y - e1y * e2x;
     const len = Math.hypot(nx, ny, nz);
     if (len < 1e-12) continue; // zero-area triangle carries no orientation
-    nx /= len; ny /= len; nz /= len;
+    nx /= len;
+    ny /= len;
+    nz /= len;
     const phase = triPhase[t / 3];
 
     for (let e = 0; e < 3; e++) {
@@ -359,12 +411,16 @@ async function main() {
   const soup = collectTriangles(gltf, bin, REGION_MIN_X);
   console.log(
     `  ${soup.indices.length / 3} triangles, ${soup.positions.length / 3} vertices ` +
-    `(x >= ${REGION_MIN_X}, the FINAL house only)`
+      `(x >= ${REGION_MIN_X}, the FINAL house only)`
   );
 
   // The bounding box drives both the weld tolerance and the normalisation.
-  let minX = Infinity, minY = Infinity, minZ = Infinity;
-  let maxX = -Infinity, maxY = -Infinity, maxZ = -Infinity;
+  let minX = Infinity,
+    minY = Infinity,
+    minZ = Infinity;
+  let maxX = -Infinity,
+    maxY = -Infinity,
+    maxZ = -Infinity;
   for (let i = 0; i < soup.positions.length; i += 3) {
     if (soup.positions[i] < minX) minX = soup.positions[i];
     if (soup.positions[i] > maxX) maxX = soup.positions[i];
@@ -376,7 +432,7 @@ async function main() {
   const diagonal = Math.hypot(maxX - minX, maxY - minY, maxZ - minZ);
   console.log(
     `  source bbox ${(maxX - minX).toFixed(2)} x ${(maxY - minY).toFixed(2)} x ` +
-    `${(maxZ - minZ).toFixed(2)}`
+      `${(maxZ - minZ).toFixed(2)}`
   );
 
   const w = weld(soup.positions, soup.indices, diagonal * WELD_TOLERANCE);
@@ -418,8 +474,12 @@ async function main() {
 
   // Quantise to int16 over the output bounds. At this scale one step is well
   // under a millimetre, so nothing visible is lost and the payload halves.
-  let lo = Infinity, hi = -Infinity;
-  for (const v of flat) { if (v < lo) lo = v; if (v > hi) hi = v; }
+  let lo = Infinity,
+    hi = -Infinity;
+  for (const v of flat) {
+    if (v < lo) lo = v;
+    if (v > hi) hi = v;
+  }
   const range = hi - lo;
   const quantised = new Int16Array(flat.length);
   for (let i = 0; i < flat.length; i++) {
@@ -459,7 +519,7 @@ async function main() {
 
   console.log(
     `wrote public/assets/model/${NAME}.bin ` +
-    `(${(quantised.byteLength / 1024).toFixed(0)} KB) + ${NAME}.parts.bin + ${NAME}.json`
+      `(${(quantised.byteLength / 1024).toFixed(0)} KB) + ${NAME}.parts.bin + ${NAME}.json`
   );
   if (credit.author) console.log(`  credit: ${credit.title} — ${credit.author}`);
 }

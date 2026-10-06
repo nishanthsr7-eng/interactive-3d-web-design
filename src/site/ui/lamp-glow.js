@@ -80,7 +80,7 @@ export function initLampGlow() {
   });
 
   function apply() {
-    el.style.opacity = state.opacity;
+    el.style.opacity = String(state.opacity);
     el.style.setProperty('--lamp-scale', state.scale.toFixed(4));
     el.style.setProperty('--lamp-x', `${state.x.toFixed(2)}%`);
     el.style.setProperty('--lamp-y', `${state.y.toFixed(2)}%`);
@@ -92,14 +92,20 @@ export function initLampGlow() {
     let moved = false;
     for (const k of ['opacity', 'scale', 'x', 'y']) {
       const d = target[k] - state[k];
-      if (Math.abs(d) > 0.0008) { state[k] += d * 0.07; moved = true; }
-      else state[k] = target[k];
+      if (Math.abs(d) > 0.0008) {
+        state[k] += d * 0.07;
+        moved = true;
+      } else state[k] = target[k];
     }
     apply();
     if (moved) raf = requestAnimationFrame(tick);
   }
   function kick() {
-    if (REDUCED) { Object.assign(state, target); apply(); return; }
+    if (REDUCED) {
+      Object.assign(state, target);
+      apply();
+      return;
+    }
     if (raf === null) raf = requestAnimationFrame(tick);
   }
 }

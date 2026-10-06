@@ -25,6 +25,23 @@ export function showGate() {
   const el = document.getElementById('gate');
   if (el) el.hidden = false;
 
+  // The preview only loads once the gate is shown, so desktop visitors never
+  // download it. Autoplay is muted, so mobile browsers allow it.
+  const video = /** @type {HTMLVideoElement|null} */ (el?.querySelector('.gate__video'));
+  if (video?.dataset.src) {
+    video.muted = true;
+    video.autoplay = true;
+    video.src = video.dataset.src;
+    const play = () => video.play().catch(() => {});
+    play();
+    // Browsers defer autoplay in background tabs or under data saver; retry
+    // when the tab comes forward or on the first tap.
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) play();
+    });
+    el.addEventListener('pointerdown', play, { once: true });
+  }
+
   // Re-check on resize so widening a desktop window recovers the experience.
   let reloading = false;
   window.addEventListener('resize', () => {
