@@ -1,8 +1,21 @@
+<div align="center">
+
 # VINCI - Interactive 3D Web Experience
 
-**[Live demo →](https://vinci-interactive-landing-page.pages.dev)** · Desktop only — open on a laptop (WebGL, 1024px+)
+**A scroll-driven 3D landing page for a construction practice: a wireframe house in WebGL, a page-turning sketchbook, and a React photo wall.**
 
-https://github.com/user-attachments/assets/58322374-7203-4ef6-9b23-16e952e62185
+</div>
+
+<p align="center">Desktop only - open on a laptop (WebGL, 1024px+)</p>
+
+<p align="center"><b>Live demo: <a href="https://vinci-interactive-landing-page.pages.dev">vinci-interactive-landing-page.pages.dev</a></b></p>
+
+<p align="center">
+  <img src="docs/demo.webp" alt="Tour of VINCI: the wireframe house in the hero, the scroll into the sketchbook, and a page being dragged over" width="100%">
+</p>
+<p align="center"><sub><a href="public/assets/video/preview.mp4">Watch the full-HD version (MP4)</a></sub></p>
+
+---
 
 A single-page, desktop-targeted site for a fictional construction
 practice. Five sections, one shared WebGL stage, and a React island for the two
